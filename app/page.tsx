@@ -1,65 +1,210 @@
-import Image from "next/image";
+import Navbar from "@/app/components/Navbar";
+import Hero from "@/app/components/Hero";
+import HotelCard from "@/app/components/HotelCard";
+import Footer from "@/app/components/Footer";
+
 
 export default function Home() {
+  const featuredHotels = [
+    {
+      name: "Niels Grand Resort",
+      location: "Goa, India",
+      price: "₹12,500",
+      rating: "4.9",
+      rooms: "5 Rooms",
+      image:
+        "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1600&auto=format&fit=crop",
+    },
+    {
+      name: "Skyline Luxury Suites",
+      location: "Dubai, UAE",
+      price: "₹18,900",
+      rating: "4.8",
+      rooms: "3 Rooms",
+      image:
+        "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=1600&auto=format&fit=crop",
+    },
+    {
+      name: "Ocean Paradise Villa",
+      location: "Maldives",
+      price: "₹32,000",
+      rating: "5.0",
+      rooms: "2 Rooms",
+      image:
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1600&auto=format&fit=crop",
+    },
+  ];
+
+  const indiaDestinations = [
+    {
+      title: "Goa",
+      image:
+        "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?q=80&w=1200&auto=format&fit=crop",
+    },
+    {
+      title: "Kerala",
+      image:
+        "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?q=80&w=1200&auto=format&fit=crop",
+    },
+    {
+      title: "Jaipur",
+      image:
+        "https://images.unsplash.com/photo-1477587458883-47145ed94245?q=80&w=1200&auto=format&fit=crop",
+    },
+    {
+      title: "Kashmir",
+      image:
+        "https://images.unsplash.com/photo-1598091383021-15ddea10925d?q=80&w=1200&auto=format&fit=crop",
+    },
+  ];
+
+  const worldwideDestinations = [
+    {
+      title: "Maldives",
+      image:
+        "https://images.unsplash.com/photo-1573843981267-be1999ff37cd?q=80&w=1200&auto=format&fit=crop",
+    },
+    {
+      title: "Dubai",
+      image:
+        "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=1200&auto=format&fit=crop",
+    },
+    {
+      title: "Switzerland",
+      image:
+        "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200&auto=format&fit=crop",
+    },
+    {
+      title: "France",
+      image:
+        "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?q=80&w=1200&auto=format&fit=crop",
+    },
+  ];
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="bg-[#f8f8f6] min-h-screen overflow-x-hidden">
+      <Navbar />
+
+      <Hero />
+
+      <section id="hotels" className="relative z-20 -mt-24 pb-24">
+        {/* HERO BLEND */}
+        <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-transparent to-[#f8f8f6] z-0" />
+
+        {/* MAIN WHITE CONTAINER */}
+<div className="relative w-[96%] max-w-7xl mx-auto bg-[#f8f8f6] rounded-[48px] px-6 md:px-10 pt-20 pb-24 shadow-[0_-20px_60px_rgba(0,0,0,0.08)]">          
+          {/* GOLD LINE */}
+          <div className="w-24 h-[2px] bg-[#C8A96B] mb-10 opacity-70 rounded-full" />
+
+          {/* FEATURED HOTELS */}
+          <div className="mb-28">
+            <p className="uppercase tracking-[5px] text-[#C8A96B] text-sm mb-4">
+              Signature Collection
+            </p>
+
+            <h2 className="text-4xl md:text-6xl font-semibold text-[#1a1a1a] leading-tight mb-6">
+              Curated Escapes Around The World
+            </h2>
+
+            <p className="text-[#5c5c5c] text-lg max-w-3xl leading-relaxed mb-14">
+              Handpicked luxury stays crafted for modern premium travel
+              experiences with refined comfort, elegant architecture, and
+              unforgettable hospitality.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+              {featuredHotels.map((hotel, index) => (
+                <HotelCard key={index} {...hotel} />
+              ))}
+            </div>
+          </div>
+
+          {/* INDIA */}
+          <section id="destinations" className="mb-28">
+            <p className="uppercase tracking-[5px] text-[#C8A96B] text-sm mb-4">
+              India
+            </p>
+
+            <h2 className="text-4xl md:text-5xl font-semibold text-[#1a1a1a] leading-tight mb-6">
+              Curated Indian Retreats
+            </h2>
+
+            <p className="text-[#5c5c5c] text-lg max-w-3xl leading-relaxed mb-14">
+              From coastal sanctuaries to royal heritage escapes, discover
+              India through a more refined lens of hospitality.
+            </p>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {indiaDestinations.map((place, index) => (
+                <div
+                  key={index}
+                  className="group overflow-hidden rounded-[28px] bg-white shadow-md hover:shadow-xl transition duration-500"
+                >
+                  <div className="overflow-hidden">
+                    <img
+                      src={place.image}
+                      alt={place.title}
+                      className="h-64 w-full object-cover group-hover:scale-110 transition duration-700"
+                    />
+                  </div>
+
+                  <div className="p-5">
+                    <h3 className="text-2xl font-semibold text-[#1f1f1f]">
+                      {place.title}
+                    </h3>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* WORLDWIDE */}
+          <div>
+            <p className="uppercase tracking-[5px] text-[#C8A96B] text-sm mb-4">
+              Worldwide
+            </p>
+
+            <h2 className="text-4xl md:text-5xl font-semibold text-[#1a1a1a] leading-tight mb-6">
+              Journeys Beyond Ordinary
+            </h2>
+
+            <p className="text-[#5c5c5c] text-lg max-w-3xl leading-relaxed mb-14">
+              Discover globally celebrated destinations shaped through elegant
+              hospitality and unforgettable experiences.
+            </p>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {worldwideDestinations.map((place, index) => (
+                <div
+                  key={index}
+                  className="group overflow-hidden rounded-[28px] bg-white shadow-md hover:shadow-xl transition duration-500"
+                >
+                  <div className="overflow-hidden">
+                    <img
+                      src={place.image}
+                      alt={place.title}
+                      className="h-64 w-full object-cover group-hover:scale-110 transition duration-700"
+                    />
+                  </div>
+
+                  <div className="p-5">
+                    <h3 className="text-2xl font-semibold text-[#1f1f1f]">
+                      {place.title}
+                    </h3>
+
+                    <p className="text-sm text-[#6b6b6b] mt-2 leading-relaxed">
+                      Elegant global retreats designed for elevated modern
+                      travel.
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </section>
+
+      <Footer />
+    </main>
   );
 }
