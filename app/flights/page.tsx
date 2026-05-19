@@ -1,135 +1,185 @@
 "use client";
 
-import {useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function FlightsPage() {
 
-  const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
-const API_KEY = process.env.NEXT_PUBLIC_AVIATIONSTACK_API_KEY;
+  const [from, setFrom] = useState("BOM");
+  const [to, setTo] = useState("DXB");
+  const [departureDate, setDepartureDate] =
+    useState("2026-05-19");
 
-const [flights, setFlights] = useState<any[]>([]);
-const [loading, setLoading] = useState(false);
+  const [flights, setFlights] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
-const fetchFlights = async () => {
-  setLoading(true);
+  const fetchFlights = async () => {
 
-  try {
-    const response = await fetch(
-      `https://api.aviationstack.com/v1/flights?access_key=${API_KEY}&dep_iata=${from}&arr_iata=${to}`
-    );
+    setLoading(true);
 
-    const data = await response.json();
-    
-    console.log(data);
+    try {
 
-    if (data.data) {
-      setFlights(data.data.slice(0, 10));
+     const response = await fetch(
+  `/api/flights?from=${from}&to=${to}&date=${departureDate}`
+);
+
+      const data = await response.json();
+
+      console.log(
+        "FULL SERPAPI RESPONSE:",
+        data
+      );
+
+      const flightResults =
+        data?.best_flights ||
+        data?.other_flights ||
+        [];
+
+      setFlights(flightResults);
+
+    } catch (error) {
+
+      console.error(error);
+
     }
-  } catch (error) {
-    console.error(error);
-  }
 
-  setLoading(false);
-};
+    setLoading(false);
 
-useEffect(() => {
-  fetchFlights();
-}, []);
+  };
+
+  useEffect(() => {
+    fetchFlights();
+  }, []);
+
   return (
-    <main className="min-h-screen bg-[#f8f5ef] text-black">
 
-      {/* Hero */}
-      <section className="px-6 md:px-16 pt-20 pb-14">
+    <main className="min-h-screen bg-[#f3efe8] text-[#111111] overflow-hidden relative">
 
-        <p className="uppercase tracking-[0.35em] text-sm text-neutral-500 mb-4">
+      {/* Background */}
+      <div className="absolute top-[-220px] right-[-140px] w-[520px] h-[520px] bg-[#e8ddce] rounded-full blur-3xl opacity-40"></div>
+
+      <div className="absolute bottom-[-260px] left-[-140px] w-[460px] h-[460px] bg-[#ebe2d4] rounded-full blur-3xl opacity-50"></div>
+
+      {/* HERO */}
+      <section className="relative z-10 px-6 md:px-16 pt-28 md:pt-36 pb-24">
+
+        <p className="uppercase tracking-[0.35em] text-xs text-neutral-500 mb-6">
           Niels Privé Flights
         </p>
 
-        <h1 className="text-5xl md:text-7xl font-semibold leading-tight max-w-4xl mb-6">
-          Luxury Air Travel,
-          <br />
-          Reimagined.
+        <h1 className="text-[52px] md:text-[92px] font-semibold leading-[0.95] tracking-[-0.06em] max-w-4xl mb-8">
+          Curated air journeys for the modern luxury traveler.
         </h1>
 
-        <p className="text-neutral-600 text-lg max-w-2xl">
-          Discover premium flights, seamless journeys, and elevated travel experiences curated for modern explorers.
+        <p className="text-neutral-600 text-lg md:text-xl leading-relaxed max-w-2xl">
+          Discover elevated routes, premium airlines,
+          and real-time global flight experiences.
         </p>
 
       </section>
 
-      {/* Search Box */}
-      <section className="px-6 md:px-16 pb-20">
+      {/* SEARCH */}
+      <section className="relative z-10 px-6 md:px-16 pb-24">
 
-        <div className="bg-white rounded-[36px] p-6 md:p-8 shadow-xl border border-black/5">
+        <div className="relative overflow-hidden rounded-[40px] border border-white/50 ring-1 ring-black/[0.03] bg-white/80 backdrop-blur-2xl shadow-[0_30px_90px_rgba(0,0,0,0.06)] p-6 md:p-9">
 
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-5">
+          <div className="relative z-10">
 
-            {/* From */}
-            <div>
-              <p className="text-sm text-neutral-500 mb-3">
-                From
-              </p>
+            <div className="flex items-center justify-between mb-10">
 
-              <input
-                type="text"
-                placeholder="Mumbai"
-                value={from}
-                onChange={(e) => setFrom(e.target.value)}
-                className="w-full rounded-2xl border border-neutral-200 px-5 py-4 outline-none focus:border-black bg-white"
-              />
+              <div>
+
+                <p className="uppercase tracking-[0.35em] text-[11px] text-neutral-400 mb-3">
+                  Journey Search
+                </p>
+
+                <h3 className="text-2xl md:text-3xl font-semibold tracking-tight">
+                  Begin your next arrival.
+                </h3>
+
+              </div>
+
+              <div className="hidden md:flex items-center justify-center w-14 h-14 rounded-full bg-black text-white text-sm font-semibold shadow-xl">
+                NP
+              </div>
+
             </div>
 
-            {/* To */}
-            <div>
-              <p className="text-sm text-neutral-500 mb-3">
-                To
-              </p>
+            {/* Inputs */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
 
-              <input
-                type="text"
-                placeholder="Dubai"
-                value={to}
-                onChange={(e) => setTo(e.target.value)}
-                className="w-full rounded-2xl border border-neutral-200 px-5 py-4 outline-none focus:border-black bg-white"
-              />
-            </div>
+              {/* FROM */}
+              <div>
 
-            {/* Departure */}
-            <div>
-              <p className="text-sm text-neutral-500 mb-3">
-                Departure
-              </p>
+                <p className="text-sm text-neutral-500 mb-3">
+                  From
+                </p>
 
-              <input
-                type="date"
-                className="w-full rounded-2xl border border-neutral-200 px-5 py-4 outline-none focus:border-black bg-white"
-              />
-            </div>
+                <input
+                  type="text"
+                  value={from}
+                  onChange={(e) =>
+                    setFrom(
+                      e.target.value.toUpperCase()
+                    )
+                  }
+                  className="w-full rounded-[24px] border border-black/5 bg-[#f7f4ef] px-5 py-4 outline-none"
+                />
 
-            {/* Travelers */}
-            <div>
-              <p className="text-sm text-neutral-500 mb-3">
-                Travelers
-              </p>
+              </div>
 
-              <select className="w-full rounded-2xl border border-neutral-200 px-5 py-4 outline-none focus:border-black bg-white">
-                <option>1 Traveler</option>
-                <option>2 Travelers</option>
-                <option>3 Travelers</option>
-                <option>4+ Travelers</option>
-              </select>
-            </div>
+              {/* TO */}
+              <div>
 
-            {/* Search Button */}
-            <div className="flex items-end">
+                <p className="text-sm text-neutral-500 mb-3">
+                  To
+                </p>
 
-              <button
-  onClick={fetchFlights}
-  className="w-full bg-black hover:opacity-90 transition text-white rounded-2xl py-4 font-medium"
->
-  {loading ? "Searching..." : "Search Flights"}
-</button>
+                <input
+                  type="text"
+                  value={to}
+                  onChange={(e) =>
+                    setTo(
+                      e.target.value.toUpperCase()
+                    )
+                  }
+                  className="w-full rounded-[24px] border border-black/5 bg-[#f7f4ef] px-5 py-4 outline-none"
+                />
+
+              </div>
+
+              {/* DATE */}
+              <div>
+
+                <p className="text-sm text-neutral-500 mb-3">
+                  Departure
+                </p>
+
+                <input
+                  type="date"
+                  value={departureDate}
+                  onChange={(e) =>
+                    setDepartureDate(
+                      e.target.value
+                    )
+                  }
+                  className="w-full rounded-[24px] border border-black/5 bg-[#f7f4ef] px-5 py-4 outline-none"
+                />
+
+              </div>
+
+              {/* BUTTON */}
+              <div className="flex items-end">
+
+                <button
+                  onClick={fetchFlights}
+                  className="w-full rounded-full bg-black text-white py-4 font-medium shadow-xl"
+                >
+                  {loading
+                    ? "Searching..."
+                    : "Explore Journeys"}
+                </button>
+
+              </div>
 
             </div>
 
@@ -139,196 +189,173 @@ useEffect(() => {
 
       </section>
 
-      {/* Flight Results */}
-      <section className="px-6 md:px-16 pb-24">
+      {/* RESULTS */}
+      <section className="relative z-10 px-6 md:px-16 pb-28">
 
-        <div className="flex items-center justify-between mb-10">
+        {!loading && flights.length === 0 && (
 
-          <div>
-            <p className="uppercase tracking-[0.3em] text-sm text-neutral-500 mb-2">
-              Featured Routes
+          <div className="rounded-[36px] bg-white/70 backdrop-blur-xl border border-black/5 p-14 text-center">
+
+            <p className="text-2xl font-semibold tracking-tight mb-3">
+              No flights available
             </p>
 
-            <h2 className="text-4xl font-semibold">
-              Popular Luxury Flights
-            </h2>
           </div>
 
-        </div>
+        )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {loading && (
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            {[1, 2, 3, 4].map((item) => (
+
+              <div
+                key={item}
+                className="animate-pulse rounded-[32px] min-h-[300px] bg-white/60 border border-black/5"
+              ></div>
+
+            ))}
+
+          </div>
+
+        )}
+
+        {!loading && flights.length > 0 && (
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
             {flights.map((flight, index) => (
-  <div
-    key={index}
-    className="bg-white rounded-[32px] p-8 shadow-lg border border-black/5"
-  >
-    <div className="flex items-center justify-between mb-6">
-      <div>
-        <p className="text-sm text-neutral-500 mb-2">
-          {flight.airline?.name}
-        </p>
 
-        <h3 className="text-3xl font-semibold">
-          {flight.departure?.iata} → {flight.arrival?.iata}
-        </h3>
-      </div>
+              <div
+                key={index}
+                className="relative overflow-hidden rounded-[32px] bg-[#f8f5ef] border border-black/[0.04] p-8"
+              >
 
-      <p className="text-2xl font-semibold">
-        {flight.flight_status}
-      </p>
-    </div>
+                <div className="flex items-start justify-between mb-10">
 
-    <div className="grid grid-cols-3 gap-4 text-sm text-neutral-600">
-      <div>
-        <p>Departure</p>
-        <p className="font-medium text-black">
-          {flight.departure?.airport}
-        </p>
-      </div>
+                  <div>
 
-      <div>
-        <p>Arrival</p>
-        <p className="font-medium text-black">
-          {flight.arrival?.airport}
-        </p>
-      </div>
+                    <p className="text-[11px] uppercase tracking-[0.35em] text-neutral-500 mb-4">
 
-      <div>
-        <p>Flight</p>
-        <p className="font-medium text-black">
-          {flight.flight?.iata}
-        </p>
-      </div>
-    </div>
-  </div>
-))}
+                      {flight?.flights?.[0]?.airline ||
+                        "Premium Airline"}
 
-          {/* Card */}
-          <div className="bg-white rounded-[32px] p-8 shadow-lg border border-black/5">
+                    </p>
 
-            <div className="flex items-center justify-between mb-10">
+                    <h3 className="text-5xl font-semibold tracking-[-0.06em] leading-none mb-3">
 
-              <div>
-                <p className="text-sm text-neutral-500 mb-2">
-                  Emirates
-                </p>
+                      {flight?.flights?.[0]?.arrival_airport?.id}
 
-                <h3 className="text-3xl font-semibold">
-                  Mumbai → Dubai
-                </h3>
+                    </h3>
+
+                    <p className="text-neutral-600 text-lg">
+
+                      {flight?.flights?.[0]?.arrival_airport?.name}
+
+                    </p>
+
+                  </div>
+
+                  <div className="w-14 h-14 rounded-[20px] bg-black text-white flex items-center justify-center text-sm font-semibold">
+
+                    {flight?.flights?.[0]?.airline?.slice(0, 2) || "NP"}
+
+                  </div>
+
+                </div>
+
+                {/* ROUTE */}
+                <div className="mb-8">
+
+                  <div className="flex items-center gap-4 mb-5">
+
+                    <p className="text-xl font-medium">
+
+                      {flight?.flights?.[0]?.departure_airport?.id}
+
+                    </p>
+
+                    <div className="flex-1 h-px bg-black/10"></div>
+
+                    <p className="text-xl font-medium">
+
+                      {flight?.flights?.[0]?.arrival_airport?.id}
+
+                    </p>
+
+                  </div>
+
+                  <div className="flex items-center justify-between text-sm text-neutral-600">
+
+                    <p>
+
+                      Departure •{" "}
+                      {flight?.flights?.[0]?.departure_airport?.time ||
+                        "08:30"}
+
+                    </p>
+
+                    <p>
+                      Live Price
+                    </p>
+
+                  </div>
+
+                </div>
+
+                <div className="h-px w-full bg-black/5 mb-6"></div>
+
+                {/* BOTTOM */}
+                <div className="flex items-end justify-between">
+
+                  <div>
+
+                    <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-400 mb-2">
+                      Price
+                    </p>
+
+                    <p className="text-2xl font-semibold">
+
+                      ${flight?.price || "N/A"}
+
+                    </p>
+
+                  </div>
+
+                <a
+  href={`/flights/details?airline=${encodeURIComponent(
+    flight?.flights?.[0]?.airline || ""
+  )}&from=${encodeURIComponent(
+    flight?.flights?.[0]?.departure_airport?.id || ""
+  )}&to=${encodeURIComponent(
+    flight?.flights?.[0]?.arrival_airport?.id || ""
+  )}&price=${encodeURIComponent(
+    flight?.price || ""
+  )}&departure=${encodeURIComponent(
+    flight?.flights?.[0]?.departure_airport?.time || ""
+  )}&arrival=${encodeURIComponent(
+    flight?.flights?.[0]?.arrival_airport?.time || ""
+  )}`}
+  className="rounded-full bg-black text-white px-6 py-3.5 text-sm font-medium tracking-tight shadow-lg transition-all duration-300 hover:scale-[1.02] hover:opacity-90"
+>
+  Continue
+</a>
+
+                </div>
+
               </div>
 
-              <p className="text-3xl font-semibold">
-                ₹42,500
-              </p>
-
-            </div>
-
-            <div className="grid grid-cols-3 gap-6 mb-10">
-
-              <div>
-                <p className="text-neutral-500 text-sm mb-2">
-                  Departure
-                </p>
-
-                <h4 className="font-semibold">
-                  08:40 AM
-                </h4>
-              </div>
-
-              <div>
-                <p className="text-neutral-500 text-sm mb-2">
-                  Arrival
-                </p>
-
-                <h4 className="font-semibold">
-                  11:15 AM
-                </h4>
-              </div>
-
-              <div>
-                <p className="text-neutral-500 text-sm mb-2">
-                  Duration
-                </p>
-
-                <h4 className="font-semibold">
-                  3h 05m
-                </h4>
-              </div>
-
-            </div>
-
-            <button className="w-full bg-black text-white py-4 rounded-2xl hover:opacity-90 transition">
-              View Flight
-            </button>
+            ))}
 
           </div>
 
-          {/* Card */}
-          <div className="bg-white rounded-[32px] p-8 shadow-lg border border-black/5">
-
-            <div className="flex items-center justify-between mb-10">
-
-              <div>
-                <p className="text-sm text-neutral-500 mb-2">
-                  Qatar Airways
-                </p>
-
-                <h3 className="text-3xl font-semibold">
-                  Delhi → London
-                </h3>
-              </div>
-
-              <p className="text-3xl font-semibold">
-                ₹88,900
-              </p>
-
-            </div>
-
-            <div className="grid grid-cols-3 gap-6 mb-10">
-
-              <div>
-                <p className="text-neutral-500 text-sm mb-2">
-                  Departure
-                </p>
-
-                <h4 className="font-semibold">
-                  02:10 AM
-                </h4>
-              </div>
-
-              <div>
-                <p className="text-neutral-500 text-sm mb-2">
-                  Arrival
-                </p>
-
-                <h4 className="font-semibold">
-                  11:30 AM
-                </h4>
-              </div>
-
-              <div>
-                <p className="text-neutral-500 text-sm mb-2">
-                  Duration
-                </p>
-
-                <h4 className="font-semibold">
-                  11h 20m
-                </h4>
-              </div>
-
-            </div>
-
-            <button className="w-full bg-black text-white py-4 rounded-2xl hover:opacity-90 transition">
-              View Flight
-            </button>
-
-          </div>
-
-        </div>
+        )}
 
       </section>
 
     </main>
+
   );
+
 }

@@ -94,7 +94,7 @@ useEffect(() => {
                 </a>
 
                 <a
-  href="#"
+  href="/flights"
   className={`group relative transition-all duration-300 ${
     scrolled
       ? "text-black/80 hover:text-[#E7C58A]"
