@@ -1,5 +1,7 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
+
 import { getAuth } from "firebase/auth";
+
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -8,13 +10,15 @@ const firebaseConfig = {
   projectId: "niels-prive",
   storageBucket: "niels-prive.firebasestorage.app",
   messagingSenderId: "117671092679",
-  appId: "1:117671092679:web:5b15136a2b54486a8479e2",
-  measurementId: "G-F20218LTHG"
+  appId: "1:117671092679:web:4d120d91d445d2bb8479e2",
+  measurementId: "G-E7Z7C7WJWY",
 };
 
-const app = !getApps().length
-  ? initializeApp(firebaseConfig)
-  : getApp();
+export const app =
+  !getApps().length
+    ? initializeApp(firebaseConfig)
+    : getApp();
 
 export const auth = getAuth(app);
+
 export const db = getFirestore(app);

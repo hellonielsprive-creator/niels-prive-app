@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { auth } from "@/app/firebase/config";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import {
   Plane,
   Hotel,
@@ -9,6 +11,20 @@ import {
   BriefcaseBusiness,
 } from "lucide-react";
 export default function Navbar() {
+    const [user, setUser] = useState<any>(null);
+
+useEffect(() => {
+
+  const unsubscribe = onAuthStateChanged(
+    auth,
+    (currentUser) => {
+      setUser(currentUser);
+    }
+  );
+
+  return () => unsubscribe();
+
+}, []);
 
   const [open, setOpen] = useState(false);
 const [scrolled, setScrolled] = useState(false);
@@ -141,12 +157,27 @@ className={`group relative transition-all duration-300 ${
 
             </div>
 
-            <button
-              onClick={() => setOpen(true)}
-              className="bg-black text-white px-6 py-3 rounded-full text-sm font-medium hover:bg-[#1d1d1f] transition-all duration-300"
-            >
-              Sign In
-            </button>
+           {
+  user ? (
+
+    <button
+      onClick={() => signOut(auth)}
+      className="bg-black text-white px-6 py-3 rounded-full text-sm"
+    >
+      Sign Out
+    </button>
+
+  ) : (
+
+    <a
+      href="/signin"
+      className="bg-black text-white px-6 py-3 rounded-full text-sm"
+    >
+      Sign In
+    </a>
+
+  )
+}
 
           </div>
 

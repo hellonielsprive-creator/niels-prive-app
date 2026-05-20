@@ -1,6 +1,8 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import { addDoc, collection } from "firebase/firestore";
+import { db, auth } from "@/app/firebase/config";
 
 export default function CheckoutPage() {
 
@@ -23,6 +25,30 @@ export default function CheckoutPage() {
 
   const travelers =
     searchParams.get("travelers");
+
+  const handleBooking = async () => {
+    console.log("HANDLE BOOKING RUNNING");
+    console.log(auth.currentUser);
+
+  await addDoc(
+    collection(db, "bookings"),
+    {
+      
+
+      airline,
+      from,
+      to,
+      price,
+      cabin,
+      travelers,
+      userId: auth.currentUser?.uid || "guest",
+      createdAt: new Date(),
+    }
+  );
+
+  window.location.href =
+    "/confirmation";
+};
 
   return (
 
@@ -218,13 +244,12 @@ export default function CheckoutPage() {
 
             </div>
 
-            <a
-              href="/confirmation"
-              className="block w-full text-center rounded-full bg-white text-black py-4 font-medium tracking-tight transition-all duration-300 hover:scale-[1.01]"
-            >
-              Secure Payment
-            </a>
-
+            <button
+  onClick={handleBooking}
+  className="block w-full text-center rounded-full bg-white text-black py-4 font-medium tracking-tight transition-all duration-300 hover:scale-[1.01]"
+>
+  Secure Payment
+</button>
           </div>
 
         </div>
