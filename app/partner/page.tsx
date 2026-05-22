@@ -1,4 +1,8 @@
+"use client";
+
+import { useRouter } from "next/navigation";
 export default function PartnerPage() {
+  const router = useRouter();
 
   return (
 
@@ -35,7 +39,12 @@ export default function PartnerPage() {
 
           </p>
 
-          <button className="mt-12 bg-white text-black px-10 py-5 rounded-2xl text-lg font-medium hover:scale-105 transition-all">
+          <button
+  onClick={() =>
+    router.push("/signin")
+  }
+  className="mt-12 bg-white text-black px-10 py-5 rounded-full"
+>
 
             Become A Partner
 

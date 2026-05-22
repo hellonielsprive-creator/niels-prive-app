@@ -74,12 +74,11 @@ export default function HotelCard({
         <div className="mt-6 flex gap-3">
 
           <a
-            href="/hotel"
-            className="flex-1 bg-black text-white py-3 rounded-2xl hover:opacity-90 transition-all text-center"
-          >
-            View Stay
-          </a>
-
+  href="/hotel/1"
+  className="flex-1 bg-black text-white py-3 rounded-2xl hover:opacity-90 transition-all text-center"
+>
+  View Stay
+</a>
           <button className="flex-1 border border-gray-300 py-3 rounded-2xl hover:bg-gray-50 transition-all text-black">
             Contact
           </button>

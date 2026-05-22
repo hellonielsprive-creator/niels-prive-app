@@ -27,7 +27,7 @@ export default function SignInPage() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
 
-      router.push("/dashboard");
+      router.push("/partner/dashboard");
     } catch (err: any) {
       setError("Invalid email or password");
     }
@@ -41,7 +41,7 @@ export default function SignInPage() {
     try {
       await signInWithPopup(auth, provider);
 
-      router.push("/dashboard");
+      router.push("/partner/dashboard");
     } catch (err: any) {
       console.log(err);
 setError(err.message);

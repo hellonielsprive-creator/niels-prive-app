@@ -1,134 +1,122 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+
 export default function Footer() {
+  const router = useRouter();
   return (
-    <footer id="support"className="bg-[#0a0a0a] text-white pt-28 pb-14 px-6 mt-32 border-t border-white/10">
+    <footer
+      id="support"
+      className="relative overflow-hidden bg-[#050505] md:bg-[#050505] bg-[#0f0f11] text-white md:mt-20 mt-12 border-t border-white/10"
+    >
 
-      <div className="max-w-7xl mx-auto">
+      {/* AMBIENT GLOW */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-[#E7C58A]/10 blur-[120px] rounded-full pointer-events-none" />
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-16">
+      {/* NOISE OVERLAY */}
+      <div className="absolute inset-0 opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+
+      <div className="relative max-w-7xl mx-auto px-6 pt-16 pb-8">
+
+        {/* TOP */}
+        <div className="flex flex-col gap-8">
 
           {/* BRAND */}
           <div>
 
-            <h2 className="text-4xl font-semibold">
-              Niels <span className="text-[#E7C58A]">Privé</span>
+            <h2 className="text-[32px] font-semibold tracking-[-0.03em]">
+              Niels{" "}
+              <span className="text-[#E7C58A]">
+                Privé
+              </span>
             </h2>
 
-            <p className="text-white/60 mt-6 leading-relaxed">
-              Luxury hospitality platform delivering curated premium stays
-              and elegant travel experiences worldwide.
+            <p className="text-white/50 mt-4 leading-relaxed max-w-sm text-sm">
+              Curated luxury stays, premium flights, and elevated travel
+              experiences crafted for modern explorers.
             </p>
 
           </div>
 
-          {/* COMPANY */}
-          <div>
+          {/* QUICK LINKS */}
+          <div className="flex flex-wrap items-center gap-5 text-sm text-white/40">
 
-            <h3 className="text-lg font-medium mb-6">
-              Company
-            </h3>
+            {[
+              "About",
+              "Stays",
+              "Flights",
+              "Support",
+            ].map((item, index) => (
 
-            <div className="space-y-4 text-white/60">
-
-              <p className="hover:text-white transition cursor-pointer">
-                About
+              <p
+                key={index}
+                className="cursor-pointer transition-all duration-300 hover:text-white hover:-translate-y-[1px]"
+              >
+                {item}
               </p>
 
-              <p className="hover:text-white transition cursor-pointer">
-                Careers
-              </p>
-
-              <p className="hover:text-white transition cursor-pointer">
-                Partner With Us
-              </p>
-
-              <p className="hover:text-white transition cursor-pointer">
-                Press
-              </p>
-
-            </div>
+            ))}
 
           </div>
 
-          {/* SUPPORT */}
-          <div >
-
-            <h3 className="text-lg font-medium mb-6">
-              Support
-            </h3>
-
-            <div className="space-y-4 text-white/60">
-
-              <p className="hover:text-white transition cursor-pointer">
-                Help Center
-              </p>
-
-              <p className="hover:text-white transition cursor-pointer">
-                Cancellation Options
-              </p>
-
-              <p className="hover:text-white transition cursor-pointer">
-                Refund Support
-              </p>
-
-              <p className="hover:text-white transition cursor-pointer">
-                Contact Support
-              </p>
-
-            </div>
-
-          </div>
+          {/* PARTNERSHIP */}
+          <button
+          onClick={() =>
+  router.push("/partner")
+}
+            className="
+              w-fit
+              text-sm
+              text-[#E7C58A]/45
+              hover:text-[#E7C58A]
+              transition-all
+              duration-300
+            "
+          >
+            Hospitality Partnerships
+          </button>
 
           {/* CONTACT */}
-          <div>
+          <div className="space-y-2 text-sm text-white/35">
 
-            <h3 className="text-lg font-medium mb-6">
-              Contact
-            </h3>
+            <p className="hover:text-white transition">
+              hello.nielsprive@gmail.com
+            </p>
 
-            <div className="space-y-4 text-white/60">
-
-              <p>
-                hello.nielsprive@gmail.com
-              </p>
-
-              <p>
-                +91 7204157984
-              </p>
-
-              <p>
-                @nielsprive.co
-              </p>
-
-              <p>
-                Bangalore, India
-              </p>
-
-            </div>
+            <p>
+              Bangalore, India
+            </p>
 
           </div>
 
         </div>
 
-        {/* BOTTOM */}
-        <div className="border-t border-white/10 mt-20 pt-8 flex flex-col md:flex-row items-center justify-between gap-6">
+        {/* DIVIDER */}
+        <div className="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent my-8" />
 
-          <p className="text-white/40 text-sm">
+        {/* BOTTOM */}
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+
+          <p className="text-white/25 text-xs tracking-wide">
             ©️ 2026 Niels Privé. All rights reserved.
           </p>
 
-          <div className="flex items-center gap-6 text-white/40 text-sm">
+          <div className="flex items-center gap-4 text-white/25 text-xs">
 
-            <p className="hover:text-white transition cursor-pointer">
-              Privacy Policy
-            </p>
+            {[
+              "Privacy",
+              "Terms",
+              "Cookies",
+            ].map((item, index) => (
 
-            <p className="hover:text-white transition cursor-pointer">
-              Terms
-            </p>
+              <p
+                key={index}
+                className="cursor-pointer transition hover:text-white"
+              >
+                {item}
+              </p>
 
-            <p className="hover:text-white transition cursor-pointer">
-              Cookies
-            </p>
+            ))}
 
           </div>
 

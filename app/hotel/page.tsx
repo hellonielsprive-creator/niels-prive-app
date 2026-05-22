@@ -229,7 +229,7 @@ export default function HotelPage() {
 
               onClick={() =>
                 window.location.href =
-                  `/hotels/${hotel.id}`
+                  `/hotel/${hotel.id}`
               }
 
               className="rounded-[32px] overflow-hidden bg-white text-black cursor-pointer hover:scale-[1.01] transition-all duration-300"

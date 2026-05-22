@@ -1,48 +1,138 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
+import { useRouter } from "next/navigation";
+
 import {
   Upload,
   ImagePlus,
-  FolderPlus,
   MoreVertical,
   Eye,
   Pencil,
   Trash2,
+  ImageIcon,
 } from "lucide-react";
+
+import {
+  collection,
+  addDoc,
+  getDocs,
+} from "firebase/firestore";
+
+import { db } from "@/app/firebase/config";
 
 export default function GalleryPage() {
 
-  const galleryImages = [
+  const router = useRouter();
 
-    {
-      title: "Oceanfront Arrival",
-      category: "Hero Banner",
-      image:
-        "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2070&auto=format&fit=crop",
-    },
+  const [galleryImages, setGalleryImages] =
+    useState<any[]>([]);
 
-    {
-      title: "Skyline Penthouse",
-      category: "Luxury Suites",
-      image:
-        "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=2070&auto=format&fit=crop",
-    },
+  const [loading, setLoading] =
+    useState(true);
 
-    {
-      title: "Infinity Pool",
-      category: "Amenities",
-      image:
-        "https://images.unsplash.com/photo-1573843981267-be1999ff37cd?q=80&w=2070&auto=format&fit=crop",
-    },
+  const [imageUrl, setImageUrl] =
+    useState("");
 
-    {
-      title: "Private Dining",
-      category: "Restaurant",
-      image:
-        "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070&auto=format&fit=crop",
-    },
+  const [title, setTitle] =
+    useState("");
 
-  ];
+  const [category, setCategory] =
+    useState("");
+
+  useEffect(() => {
+
+    const fetchGallery = async () => {
+
+      try {
+
+        const querySnapshot =
+          await getDocs(
+            collection(db, "gallery")
+          );
+
+        const galleryData =
+          querySnapshot.docs.map(
+            (doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            })
+          );
+
+        setGalleryImages(galleryData);
+
+      } catch (error) {
+
+        console.log(error);
+
+      } finally {
+
+        setLoading(false);
+
+      }
+
+    };
+
+    fetchGallery();
+
+  }, []);
+
+  const handleUpload = async () => {
+
+    if (
+      !imageUrl ||
+      !title ||
+      !category
+    ) {
+
+      alert(
+        "Please Fill All Fields"
+      );
+
+      return;
+
+    }
+
+    try {
+
+      const newGalleryItem = {
+
+        title,
+        category,
+        image: imageUrl,
+
+      };
+
+      await addDoc(
+        collection(db, "gallery"),
+        newGalleryItem
+      );
+
+      setGalleryImages((prev) => [
+        newGalleryItem,
+        ...prev,
+      ]);
+
+      setImageUrl("");
+      setTitle("");
+      setCategory("");
+
+      alert(
+        "Media Uploaded Successfully"
+      );
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert(
+        "Failed To Upload Media"
+      );
+
+    }
+
+  };
 
   return (
 
@@ -50,17 +140,30 @@ export default function GalleryPage() {
 
       <section className="max-w-7xl mx-auto px-8 py-10">
 
-        {/* TOPBAR */}
+        {/* HEADER */}
 
         <div className="flex items-center justify-between mb-12">
 
           <div>
 
-            <p className="tracking-[0.3em] text-[#d4a574] text-xs mb-3">
+            <p className="tracking-[0.3em] text-[#d4a574] text-xs mb-4">
 
               MEDIA STUDIO
 
             </p>
+
+            <button
+              onClick={() =>
+                router.push(
+                  "/partner/dashboard"
+                )
+              }
+              className="mb-6 px-5 py-3 rounded-2xl bg-white/[0.05] border border-white/10 hover:bg-white/[0.08] transition-all"
+            >
+
+              ← Back To Dashboard
+
+            </button>
 
             <h1 className="text-5xl font-semibold leading-tight">
 
@@ -70,78 +173,126 @@ export default function GalleryPage() {
 
             </h1>
 
-          </div>
+            <p className="text-white/45 mt-5 leading-8 max-w-2xl">
 
-          <div className="flex items-center gap-4">
+              Curate premium hospitality visuals,
+              cinematic room experiences,
+              and immersive luxury storytelling.
 
-            <button className="border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] transition-all px-6 py-4 rounded-2xl flex items-center gap-3">
-
-              <FolderPlus size={20} />
-
-              Create Collection
-
-            </button>
-
-            <button className="bg-[#d4a574] hover:bg-[#c3925c] transition-all text-black px-6 py-4 rounded-2xl flex items-center gap-3 font-medium">
-
-              <Upload size={20} />
-
-              Upload Media
-
-            </button>
+            </p>
 
           </div>
 
         </div>
 
-        {/* HERO CARD */}
+        {/* UPLOAD SECTION */}
 
-        <div className="relative overflow-hidden rounded-[40px] border border-white/10 bg-white/[0.03] mb-12">
+        <div className="rounded-[35px] border border-white/10 bg-white/[0.03] p-8 mb-12">
 
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent z-10" />
+          <div className="grid md:grid-cols-3 gap-5 mb-6">
 
-          <img
-            src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2070&auto=format&fit=crop"
-            alt="Gallery"
-            className="w-full h-[420px] object-cover"
-          />
+            <input
+              value={title}
+              onChange={(e) =>
+                setTitle(
+                  e.target.value
+                )
+              }
+              placeholder="Media Title"
+              className="bg-white/[0.04] border border-white/10 rounded-2xl px-5 py-4 outline-none"
+            />
 
-          <div className="absolute z-20 left-0 top-0 h-full flex flex-col justify-center px-12 max-w-2xl">
+            <input
+              value={category}
+              onChange={(e) =>
+                setCategory(
+                  e.target.value
+                )
+              }
+              placeholder="Category"
+              className="bg-white/[0.04] border border-white/10 rounded-2xl px-5 py-4 outline-none"
+            />
 
-            <p className="tracking-[0.35em] text-[#d4a574] text-xs mb-5">
+            <input
+              value={imageUrl}
+              onChange={(e) =>
+                setImageUrl(
+                  e.target.value
+                )
+              }
+              placeholder="Image URL"
+              className="bg-white/[0.04] border border-white/10 rounded-2xl px-5 py-4 outline-none"
+            />
 
-              VISUAL EXPERIENCE
+          </div>
 
-            </p>
+          <button
+            onClick={handleUpload}
+            className="bg-[#d4a574] hover:bg-[#c3925c] transition-all text-black px-7 py-4 rounded-2xl flex items-center gap-3 font-medium"
+          >
 
-            <h2 className="text-6xl font-semibold leading-[1.05] mb-8">
+            <Upload size={20} />
 
-              Showcase Your
-              Property Through
-              Cinematic Visuals
+            Upload Media
+
+          </button>
+
+        </div>
+
+        {/* LOADING */}
+
+        {loading && (
+
+          <div className="text-center py-32 text-white/40 text-xl">
+
+            Loading Media Gallery...
+
+          </div>
+
+        )}
+
+        {/* EMPTY STATE */}
+
+        {!loading &&
+          galleryImages.length === 0 && (
+
+          <div className="border border-dashed border-white/10 rounded-[35px] p-16 text-center bg-white/[0.02]">
+
+            <div className="w-24 h-24 rounded-full bg-white/[0.03] flex items-center justify-center mx-auto mb-8">
+
+              <ImageIcon
+                size={38}
+                className="text-[#d4a574]"
+              />
+
+            </div>
+
+            <h2 className="text-3xl font-semibold mb-4">
+
+              No Media Uploaded Yet
 
             </h2>
 
-            <p className="text-neutral-300 text-lg leading-9">
+            <p className="text-white/45 max-w-xl mx-auto leading-8 mb-10">
 
-              Premium hospitality begins with premium
-              presentation. Curate immersive visuals that
-              inspire travelers worldwide.
+              Upload cinematic hospitality visuals,
+              room photography,
+              amenities, and luxury experiences.
 
             </p>
 
           </div>
 
-        </div>
+        )}
 
-        {/* GALLERY GRID */}
+        {/* LIVE GALLERY */}
 
         <div className="grid lg:grid-cols-2 gap-8">
 
-          {galleryImages.map((item, index) => (
+          {galleryImages.map((item) => (
 
             <div
-              key={index}
+              key={item.id}
               className="rounded-[35px] overflow-hidden border border-white/10 bg-white/[0.03]"
             >
 
@@ -177,8 +328,8 @@ export default function GalleryPage() {
 
                   <p className="text-neutral-300 leading-8 max-w-lg">
 
-                    Professionally curated visual asset
-                    optimized for premium hospitality
+                    Luxury hospitality visual
+                    optimized for immersive guest
                     presentation.
 
                   </p>
