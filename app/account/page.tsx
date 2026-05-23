@@ -4,7 +4,7 @@ import {
   useEffect,
   useState,
 } from "react";
-
+import { useRouter } from "next/navigation";
 import {
   Moon,
   Sun,
@@ -27,6 +27,7 @@ export default function AccountPage() {
 
   const [darkMode, setDarkMode] =
     useState(true);
+    const router = useRouter();
 
   const upcomingBookings =
     bookings.filter(
@@ -43,6 +44,11 @@ export default function AccountPage() {
   useEffect(() => {
 
     const fetchBookings = async () => {
+        
+        if (!auth.currentUser) {
+  router.push("/signin");
+  return;
+}
 
       if (!auth.currentUser?.email) return;
 

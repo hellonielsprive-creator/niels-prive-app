@@ -4,436 +4,435 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useRouter } from "next/navigation";
 
+import toast from "react-hot-toast";
+
+import RoomCard from "@/app/components/rooms/RoomCard";
+
+import RoomsHeader from "@/app/components/rooms/RoomsHeader";
+
+import DeleteRoomModal from "@/app/components/rooms/DeleteRoomModal";
+
+import RoomGalleryModal from "@/app/components/rooms/RoomGalleryModal";
+
+import {
+  getRoomStatus,
+  getRoomRevenue,
+  getRoomBookings,
+} from "@/app/components/rooms/roomHelpers";
+
 import {
   collection,
   getDocs,
+  query,
+  where,
+  updateDoc,
+  doc,
 } from "firebase/firestore";
 
-import { db } from "@/app/firebase/config";
+import {
+  db,
+  auth,
+} from "@/app/firebase/config";
 
 import {
-  BedDouble,
-  Users,
-  Bath,
-  Expand,
-  Pencil,
-  Plus,
-  Search,
-  ImagePlus,
+  Sparkles,
 } from "lucide-react";
 
 export default function RoomsPage() {
 
   const router = useRouter();
 
-  const [rooms, setRooms] =
-    useState<any[]>([]);
+  const [rooms,
+    setRooms,
+  ] = useState<any[]>([]);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [bookings,
+    setBookings,
+  ] = useState<any[]>([]);
 
-  const [search, setSearch] =
-    useState("");
+  const [loading,
+    setLoading,
+  ] = useState(true);
+
+  const [search,
+    setSearch,
+  ] = useState("");
+
+  const [showDeleteModal,
+    setShowDeleteModal,
+  ] = useState(false);
+
+  const [selectedRoom,
+    setSelectedRoom,
+  ] = useState<any>(null);
+
+  const [galleryPreview,
+    setGalleryPreview,
+  ] = useState<string[]>([]);
 
   useEffect(() => {
 
-    const fetchRooms = async () => {
+    if (!auth.currentUser) {
 
-      try {
+      router.push("/signin");
 
-        const querySnapshot =
-          await getDocs(
-            collection(db, "rooms")
+      return;
+
+    }
+
+    const fetchRooms =
+      async () => {
+
+        try {
+
+          const roomsQuery =
+            query(
+              collection(
+                db,
+                "rooms"
+              ),
+              where(
+                "partnerId",
+                "==",
+                auth.currentUser?.uid
+              )
+            );
+
+          const roomsSnapshot =
+            await getDocs(
+              roomsQuery
+            );
+
+          const roomsData =
+            roomsSnapshot.docs.map(
+              (doc) => ({
+                id: doc.id,
+                ...doc.data(),
+              })
+            );
+
+          setRooms(
+            roomsData
           );
 
-        const roomsData =
-          querySnapshot.docs.map(
-            (doc) => ({
-              id: doc.id,
-              ...doc.data(),
-            })
+          const bookingsSnapshot =
+            await getDocs(
+              collection(
+                db,
+                "bookings"
+              )
+            );
+
+          const bookingsData =
+            bookingsSnapshot.docs.map(
+              (doc) => ({
+                id: doc.id,
+                ...doc.data(),
+              })
+            );
+
+          const partnerBookings =
+            bookingsData.filter(
+              (booking: any) =>
+
+                roomsData.some(
+                  (room: any) =>
+                    room.roomName ===
+                    booking.roomName
+                )
+
+            );
+
+          setBookings(
+            partnerBookings
           );
 
-        setRooms(roomsData);
+        } catch (error) {
 
-      } catch (error) {
+          console.log(error);
 
-        console.log(error);
+        } finally {
 
-      } finally {
+          setLoading(false);
 
-        setLoading(false);
+        }
 
-      }
-
-    };
+      };
 
     fetchRooms();
 
   }, []);
 
+  /* SEARCH */
+
   const filteredRooms =
     useMemo(() => {
 
-      return rooms.filter((room) =>
-        room.roomName
-          ?.toLowerCase()
-          .includes(
-            search.toLowerCase()
-          )
+      return rooms.filter(
+        (room) =>
+
+          room.roomName
+            ?.toLowerCase()
+            .includes(
+              search.toLowerCase()
+            )
+
       );
 
     }, [rooms, search]);
 
-  return (
+  /* UPDATE STATUS */
 
-    <main className="min-h-screen bg-[#050505] text-white">
+  const updateRoomStatus =
+    async (
+      roomId: string,
+      status: string
+    ) => {
 
-      <section className="max-w-7xl mx-auto px-8 py-10">
+      try {
 
-        {/* TOPBAR */}
+        await updateDoc(
+          doc(
+            db,
+            "rooms",
+            roomId
+          ),
+          {
+            manualStatus: status,
+          }
+        );
 
-        <div className="flex items-center justify-between mb-12">
+        setRooms(
+          rooms.map((room) =>
 
-          <div>
-
-            <p className="tracking-[0.3em] text-[#d4a574] text-xs mb-4">
-
-              ROOM MANAGEMENT
-
-            </p>
-
-            <button
-              onClick={() =>
-                router.push(
-                  "/partner/dashboard"
-                )
-              }
-              className="mb-6 px-5 py-3 rounded-2xl bg-white/[0.05] border border-white/10 hover:bg-white/[0.08] transition-all"
-            >
-
-              ← Back To Dashboard
-
-            </button>
-
-            <h1 className="text-5xl font-semibold leading-tight">
-
-              Manage Your
-              <br />
-              Luxury Inventory
-
-            </h1>
-
-            <p className="text-white/45 mt-5 leading-8 max-w-2xl">
-
-              Control your live hospitality inventory,
-              room availability, pricing,
-              and premium guest experiences.
-
-            </p>
-
-          </div>
-
-          <div className="flex items-center gap-4">
-
-            <div className="relative">
-
-              <Search
-                size={18}
-                className="absolute left-5 top-1/2 -translate-y-1/2 text-neutral-500"
-              />
-
-              <input
-                value={search}
-                onChange={(e) =>
-                  setSearch(
-                    e.target.value
-                  )
+            room.id === roomId
+              ? {
+                  ...room,
+                  manualStatus:
+                    status,
                 }
-                placeholder="Search rooms..."
-                className="bg-white/[0.04] border border-white/10 rounded-2xl pl-14 pr-5 py-4 outline-none w-[260px]"
+              : room
+
+          )
+        );
+
+        toast.success(
+          "Room status updated"
+        );
+
+      } catch (error) {
+
+        toast.error(
+          "Something went wrong"
+        );
+
+        console.log(error);
+
+      }
+
+    };
+
+  /* DELETE */
+
+  const deleteRoom =
+    async () => {
+
+      if (!selectedRoom)
+        return;
+
+      try {
+
+        await updateDoc(
+          doc(
+            db,
+            "rooms",
+            selectedRoom.id
+          ),
+          {
+            archived: true,
+          }
+        );
+
+        setRooms(
+          (prevRooms) =>
+
+            prevRooms.filter(
+              (room) =>
+                room.id !==
+                selectedRoom.id
+            )
+
+        );
+
+        toast.success(
+          `${selectedRoom.roomName} archived`
+        );
+
+        setShowDeleteModal(
+          false
+        );
+
+        setSelectedRoom(
+          null
+        );
+
+      } catch (error) {
+
+        toast.error(
+          "Something went wrong"
+        );
+
+        console.log(error);
+
+      }
+
+    };
+
+  /* LOADING */
+
+  if (loading) {
+
+    return (
+
+      <main className="min-h-screen bg-[#050505] text-white px-8 py-10">
+
+        <div className="animate-pulse">
+
+          <div className="h-16 w-72 rounded-2xl bg-white/[0.05] mb-14" />
+
+          <div className="grid lg:grid-cols-2 gap-8">
+
+            {[1, 2, 3, 4].map(
+              (item) => (
+
+              <div
+                key={item}
+                className="h-[620px] rounded-[35px] bg-white/[0.04]"
               />
 
-            </div>
-
-            <button
-              onClick={() =>
-                router.push(
-                  "/partner/dashboard/rooms/add"
-                )
-              }
-              className="bg-[#d4a574] hover:bg-[#c3925c] transition-all text-black px-6 py-4 rounded-2xl font-medium flex items-center gap-3"
-            >
-
-              <Plus size={20} />
-
-              Add New Room
-
-            </button>
+            ))}
 
           </div>
 
         </div>
 
-        {/* LOADING */}
+      </main>
 
-        {loading && (
+    );
 
-          <div className="text-center py-32 text-white/40 text-xl">
+  }
 
-            Loading Luxury Rooms...
+  return (
 
-          </div>
+    <main className="min-h-screen bg-[#050505] text-white overflow-hidden">
 
-        )}
+      {/* BACKGROUND */}
 
-        {/* EMPTY STATE */}
+      <div className="absolute top-0 left-0 w-full h-[450px] bg-[radial-gradient(circle_at_top,rgba(212,165,116,0.12),transparent_50%)] pointer-events-none" />
+
+      <section className="relative z-10 max-w-7xl mx-auto px-6 md:px-8 py-10">
+
+        {/* HEADER */}
+
+        <RoomsHeader
+          router={router}
+          search={search}
+          setSearch={setSearch}
+        />
+
+        {/* EMPTY */}
 
         {!loading &&
           filteredRooms.length === 0 && (
 
-          <div className="border border-dashed border-white/10 rounded-[35px] p-16 text-center bg-white/[0.02]">
+          <div className="border border-dashed border-white/10 rounded-[40px] p-16 text-center bg-white/[0.02]">
 
             <div className="w-24 h-24 rounded-full bg-white/[0.03] flex items-center justify-center mx-auto mb-8">
 
-              <BedDouble
+              <Sparkles
                 size={38}
                 className="text-[#d4a574]"
               />
 
             </div>
 
-            <h2 className="text-3xl font-semibold mb-4">
+            <h2 className="text-4xl font-semibold mb-5">
 
-              No Rooms Added Yet
+              No Active Inventory
 
             </h2>
 
-            <p className="text-white/45 max-w-xl mx-auto leading-8 mb-10">
+            <p className="text-white/45 max-w-2xl mx-auto leading-8 mb-10 text-lg">
 
-              Begin building your luxury hospitality
-              inventory by adding premium suites,
-              villas, and curated guest experiences.
+              Start building your hospitality inventory and premium room experiences for future guests.
 
             </p>
-
-            <button
-              onClick={() =>
-                router.push(
-                  "/partner/dashboard/rooms/add"
-                )
-              }
-              className="bg-[#d4a574] hover:bg-[#c3925c] transition-all text-black px-8 py-4 rounded-2xl font-medium inline-flex items-center gap-3"
-            >
-
-              <Plus size={20} />
-
-              Add First Room
-
-            </button>
 
           </div>
 
         )}
 
-        {/* LIVE ROOM GRID */}
+        {/* GRID */}
 
         <div className="grid lg:grid-cols-2 gap-8">
 
-          {filteredRooms.map((room) => (
-
-            <div
-              key={room.id}
-              className="rounded-[35px] overflow-hidden border border-white/10 bg-white/[0.03]"
-            >
-
-              {/* IMAGE */}
-
-              <div className="relative">
-
-                <img
-                  src={
-                    room.image ||
-                    "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=2070&auto=format&fit=crop"
-                  }
-                  alt={room.roomName}
-                  className="w-full h-[320px] object-cover"
-                />
-
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent" />
-
-                <div className="absolute bottom-0 left-0 p-8">
-
-                  <p className="tracking-[0.3em] text-[#d4a574] text-xs mb-3">
-
-                    NIELS PRIVÉ COLLECTION
-
-                  </p>
-
-                  <h2 className="text-4xl font-semibold mb-4">
-
-                    {room.roomName}
-
-                  </h2>
-
-                  <p className="text-neutral-300 max-w-lg leading-8">
-
-                    {room.description ||
-                      "Luxury hospitality experience crafted for premium guests."}
-
-                  </p>
-
-                </div>
-
-              </div>
-
-              {/* DETAILS */}
-
-              <div className="p-8">
-
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-
-                  <div className="rounded-2xl bg-white/[0.03] border border-white/10 p-5">
-
-                    <Users
-                      size={22}
-                      className="text-[#d4a574] mb-4"
-                    />
-
-                    <p className="text-neutral-400 text-sm mb-2">
-
-                      Guests
-
-                    </p>
-
-                    <h3 className="text-2xl font-semibold">
-
-                      {room.guests || 2}
-
-                    </h3>
-
-                  </div>
-
-                  <div className="rounded-2xl bg-white/[0.03] border border-white/10 p-5">
-
-                    <BedDouble
-                      size={22}
-                      className="text-[#d4a574] mb-4"
-                    />
-
-                    <p className="text-neutral-400 text-sm mb-2">
-
-                      Beds
-
-                    </p>
-
-                    <h3 className="text-2xl font-semibold">
-
-                      {room.bedType || "King"}
-
-                    </h3>
-
-                  </div>
-
-                  <div className="rounded-2xl bg-white/[0.03] border border-white/10 p-5">
-
-                    <Bath
-                      size={22}
-                      className="text-[#d4a574] mb-4"
-                    />
-
-                    <p className="text-neutral-400 text-sm mb-2">
-
-                      Baths
-
-                    </p>
-
-                    <h3 className="text-2xl font-semibold">
-
-                      {room.bathrooms || 1}
-
-                    </h3>
-
-                  </div>
-
-                  <div className="rounded-2xl bg-white/[0.03] border border-white/10 p-5">
-
-                    <Expand
-                      size={22}
-                      className="text-[#d4a574] mb-4"
-                    />
-
-                    <p className="text-neutral-400 text-sm mb-2">
-
-                      Size
-
-                    </p>
-
-                    <h3 className="text-2xl font-semibold">
-
-                      {room.size || "65m²"}
-
-                    </h3>
-
-                  </div>
-
-                </div>
-
-                {/* FOOTER */}
-
-                <div className="flex items-center justify-between">
-
-                  <div>
-
-                    <p className="text-neutral-400 mb-2">
-
-                      Starting Price
-
-                    </p>
-
-                    <h3 className="text-4xl font-semibold">
-
-                      ₹{room.price || 0}
-
-                      <span className="text-lg text-neutral-400">
-
-                        /night
-
-                      </span>
-
-                    </h3>
-
-                  </div>
-
-                  <div className="flex items-center gap-4">
-
-                    <button className="w-14 h-14 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center">
-
-                      <ImagePlus size={20} />
-
-                    </button>
-
-                    <button className="bg-[#d4a574] hover:bg-[#c3925c] transition-all text-black px-6 py-4 rounded-2xl font-medium flex items-center gap-3">
-
-                      <Pencil size={18} />
-
-                      Edit Room
-
-                    </button>
-
-                  </div>
-
-                </div>
-
-              </div>
-
-            </div>
-
-          ))}
+          {filteredRooms.map((room) => {
+
+            const roomStatus =
+              getRoomStatus(
+                room,
+                bookings
+              );
+
+            const roomRevenue =
+              getRoomRevenue(
+                room.roomName,
+                bookings
+              );
+
+            const roomBookings =
+              getRoomBookings(
+                room.roomName,
+                bookings
+              );
+
+            return (
+
+              <RoomCard
+                key={room.id}
+                room={room}
+                roomStatus={roomStatus}
+                roomRevenue={roomRevenue}
+                roomBookings={roomBookings}
+                updateRoomStatus={updateRoomStatus}
+                setSelectedRoom={setSelectedRoom}
+                setShowDeleteModal={setShowDeleteModal}
+                setGalleryPreview={setGalleryPreview}
+                router={router}
+              />
+
+            );
+
+          })}
 
         </div>
 
       </section>
+
+      {/* MODALS */}
+
+      <DeleteRoomModal
+        showDeleteModal={showDeleteModal}
+        selectedRoom={selectedRoom}
+        setShowDeleteModal={setShowDeleteModal}
+        setSelectedRoom={setSelectedRoom}
+        deleteRoom={deleteRoom}
+      />
+
+      <RoomGalleryModal
+        galleryPreview={galleryPreview}
+        setGalleryPreview={setGalleryPreview}
+      />
 
     </main>
 

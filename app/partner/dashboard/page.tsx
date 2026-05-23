@@ -6,7 +6,10 @@ import DashboardSidebar from "@/app/components/dashboard/DashboardSidebar";
 import DashboardTopbar from "@/app/components/dashboard/DashboardTopbar";
 import DashboardStats from "@/app/components/dashboard/DashboardStats";
 import UpcomingBookings from "@/app/components/dashboard/UpcomingBookings";
-import RoomsSection from "@/app/components/dashboard/RoomsSection";
+import DailyOperations from "@/app/components/dashboard/DailyOperations";
+import PropertyOverview from "@/app/components/dashboard/PropertyOverview";
+import PropertyToggle from "@/app/components/dashboard/PropertyToggle";
+import ActivityFeed from "@/app/components/dashboard/ActivityFeed";
 
 import { useRouter } from "next/navigation";
 
@@ -17,18 +20,11 @@ import {
   getDocs,
   doc,
   updateDoc,
+  query,
+  where,
 } from "firebase/firestore";
 
 import { db } from "@/app/firebase/config";
-
-import {
-  Building2,
-  BadgeCheck,
-  Globe,
-  Mail,
-  Phone,
-  MapPin,
-} from "lucide-react";
 
 export default function PartnerDashboardPage() {
 
@@ -43,11 +39,21 @@ export default function PartnerDashboardPage() {
   const [bookings, setBookings] =
     useState<any[]>([]);
 
-  const [editingRoom, setEditingRoom] =
-    useState<any>(null);
+  const [showPropertyOverview,
+    setShowPropertyOverview,
+  ] = useState(true);
 
-  const [updatedPrice, setUpdatedPrice] =
-    useState("");
+  const [showStats,
+    setShowStats,
+  ] = useState(true);
+
+  const [luxuryMode,
+    setLuxuryMode,
+  ] = useState(false);
+
+  const [lastUpdated,
+    setLastUpdated,
+  ] = useState("");
 
   useEffect(() => {
 
@@ -68,31 +74,133 @@ export default function PartnerDashboardPage() {
 
   }, [router]);
 
+  /* LIVE CLOCK */
+
   useEffect(() => {
 
-    const fetchPartnerData =
+    const updateClock = () => {
+
+      const now =
+        new Date();
+
+      setLastUpdated(
+        now.toLocaleTimeString()
+      );
+
+    };
+
+    updateClock();
+
+    const interval =
+      setInterval(
+        updateClock,
+        1000
+      );
+
+    return () =>
+      clearInterval(interval);
+
+  }, []);
+
+  /* LIVE PMS FETCH */
+
+  useEffect(() => {
+
+    const fetchDashboardData =
       async () => {
 
         try {
 
-          const querySnapshot =
+          /* PARTNER */
+
+          const partnerSnapshot =
             await getDocs(
-              collection(db, "partners")
+              collection(
+                db,
+                "partners"
+              )
             );
 
-          const data =
-            querySnapshot.docs.map(
+          const partnerData =
+            partnerSnapshot.docs.map(
               (doc) => ({
                 id: doc.id,
                 ...doc.data(),
               })
             );
 
-          if (data.length > 0) {
+          if (
+            partnerData.length > 0
+          ) {
 
-            setPartnerData(data[0]);
+            setPartnerData(
+              partnerData[0]
+            );
 
           }
+
+          /* ROOMS */
+
+          const roomsQuery = query(
+            collection(db, "rooms"),
+            where(
+              "partnerId",
+              "==",
+              auth.currentUser?.uid
+            )
+          );
+
+          const roomsSnapshot =
+            await getDocs(
+              roomsQuery
+            );
+
+          const roomData =
+            roomsSnapshot.docs.map(
+              (doc) => ({
+                id: doc.id,
+                ...doc.data(),
+              })
+            );
+
+          setRooms(roomData);
+
+          /* BOOKINGS */
+
+          const bookingsQuery =
+            query(
+              collection(
+                db,
+                "bookings"
+              ),
+              where(
+                "partnerId",
+                "==",
+                auth.currentUser
+                  ?.uid
+              )
+            );
+
+          const bookingsSnapshot =
+            await getDocs(
+              bookingsQuery
+            );
+
+          const bookingData =
+            bookingsSnapshot.docs.map(
+              (doc) => ({
+                id: doc.id,
+                ...doc.data(),
+              })
+            );
+
+          setBookings(
+            bookingData.filter(
+              (booking: any) =>
+                booking.bookingType ===
+                "hotel"
+            )
+          );
 
         } catch (error) {
 
@@ -102,78 +210,18 @@ export default function PartnerDashboardPage() {
 
       };
 
-    fetchPartnerData();
+    fetchDashboardData();
 
-  }, []);
+    /* AUTO REFRESH */
 
-  useEffect(() => {
+    const interval =
+      setInterval(
+        fetchDashboardData,
+        10000
+      );
 
-    const fetchRooms = async () => {
-
-      try {
-
-        const querySnapshot =
-          await getDocs(
-            collection(db, "rooms")
-          );
-
-        const roomData =
-          querySnapshot.docs.map(
-            (doc) => ({
-              id: doc.id,
-              ...doc.data(),
-            })
-          );
-
-        setRooms(roomData);
-
-      } catch (error) {
-
-        console.log(error);
-
-      }
-
-    };
-
-    fetchRooms();
-
-  }, []);
-
-  useEffect(() => {
-
-    const fetchBookings = async () => {
-
-      try {
-
-        const querySnapshot =
-          await getDocs(
-            collection(db, "bookings")
-          );
-
-        const bookingData =
-          querySnapshot.docs.map(
-            (doc) => ({
-              id: doc.id,
-              ...doc.data(),
-            })
-          );
-
-        setBookings(
-          bookingData.filter(
-            (booking: any) =>
-              booking.bookingType === "hotel"
-          )
-        );
-
-      } catch (error) {
-
-        console.log(error);
-
-      }
-
-    };
-
-    fetchBookings();
+    return () =>
+      clearInterval(interval);
 
   }, []);
 
@@ -186,21 +234,26 @@ export default function PartnerDashboardPage() {
       try {
 
         await updateDoc(
-          doc(db, "bookings", id),
+          doc(
+            db,
+            "bookings",
+            id
+          ),
           {
             status,
           }
         );
 
         setBookings(
-          bookings.map((booking) =>
+          bookings.map(
+            (booking) =>
 
-            booking.id === id
-              ? {
-                  ...booking,
-                  status,
-                }
-              : booking
+              booking.id === id
+                ? {
+                    ...booking,
+                    status,
+                  }
+                : booking
 
           )
         );
@@ -213,193 +266,209 @@ export default function PartnerDashboardPage() {
 
     };
 
+  const today =
+    new Date();
+
+  const arrivalsToday =
+    bookings.filter(
+      (booking: any) => {
+
+        if (!booking.checkIn)
+          return false;
+
+        const checkIn =
+          new Date(
+            booking.checkIn
+          );
+
+        return (
+          checkIn.toDateString() ===
+            today.toDateString() &&
+          booking.status !==
+            "cancelled"
+        );
+
+      }
+    );
+
+  const departuresToday =
+    bookings.filter(
+      (booking: any) => {
+
+        if (!booking.CheckOut)
+          return false;
+
+        const checkOut =
+          new Date(
+            booking.CheckOut
+          );
+
+        return (
+          checkOut.toDateString() ===
+            today.toDateString() &&
+          booking.status ===
+            "checked-in"
+        );
+
+      }
+    );
+
+  const occupiedRooms =
+    bookings.filter(
+      (booking: any) => {
+
+        if (
+          !booking.checkIn ||
+          !booking.CheckOut
+        ) return false;
+
+        const checkIn =
+          new Date(
+            booking.checkIn
+          );
+
+        const checkOut =
+          new Date(
+            booking.CheckOut
+          );
+
+        return (
+          booking.status ===
+            "checked-in" &&
+          today >= checkIn &&
+          today <= checkOut
+        );
+
+      }
+    );
+
+  const cleaningQueue =
+    departuresToday.length;
+
   return (
 
-    <main className="min-h-screen bg-[#050505] text-white flex overflow-hidden">
+    <main
+      className={`min-h-screen flex overflow-hidden transition-all duration-300 ${
+        luxuryMode
+          ? "bg-[#f5f1eb] text-black"
+          : "bg-[#050505] text-white"
+      }`}
+    >
 
       <DashboardSidebar />
 
       <section className="flex-1 overflow-y-auto">
 
-        <DashboardTopbar />
+        <DashboardTopbar
+          showStats={showStats}
+          setShowStats={setShowStats}
+          luxuryMode={luxuryMode}
+          setLuxuryMode={setLuxuryMode}
+          partnerData={partnerData}
+        />
 
-        <div className="p-10">
+        {/* LIVE PMS BAR */}
 
-          {/* PROPERTY CARD */}
+        <div
+          className={`mx-10 mt-6 rounded-[28px] px-6 py-5 border flex flex-wrap items-center justify-between gap-4 ${
+            luxuryMode
+              ? "bg-white border-[#e8dfd3]"
+              : "bg-white/[0.03] border-white/10"
+          }`}
+        >
 
-          <div className="rounded-[35px] border border-[#d4a574]/20 bg-gradient-to-br from-[#1a1a1a] to-[#0b0b0b] p-10 mb-10">
+          <div className="flex items-center gap-4">
 
-            <div className="flex items-center justify-between mb-10">
+            <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse" />
 
-              <div>
+            <div>
 
-                <p className="tracking-[0.3em] text-[#d4a574] text-xs mb-4">
+              <p className="font-medium">
 
-                  LIVE PROPERTY DATA
+                Live PMS Sync Active
 
-                </p>
+              </p>
 
-                <h2 className="text-5xl font-semibold">
+              <p
+                className={`text-sm ${
+                  luxuryMode
+                    ? "text-neutral-500"
+                    : "text-white/45"
+                }`}
+              >
 
-                  {partnerData?.propertyName}
+                Dashboard auto-refreshing every 10 seconds
 
-                </h2>
-
-              </div>
-
-              <div className="w-20 h-20 rounded-3xl bg-[#d4a574] text-black flex items-center justify-center">
-
-                <Building2 size={38} />
-
-              </div>
-
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-              <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-
-                <div className="flex items-center gap-3 mb-4">
-
-                  <BadgeCheck
-                    size={20}
-                    className="text-[#d4a574]"
-                  />
-
-                  <p className="text-neutral-400">
-
-                    Property Type
-
-                  </p>
-
-                </div>
-
-                <h3 className="text-2xl font-semibold">
-
-                  {partnerData?.propertyType}
-
-                </h3>
-
-              </div>
-
-              <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-
-                <div className="flex items-center gap-3 mb-4">
-
-                  <Globe
-                    size={20}
-                    className="text-[#d4a574]"
-                  />
-
-                  <p className="text-neutral-400">
-
-                    Country
-
-                  </p>
-
-                </div>
-
-                <h3 className="text-2xl font-semibold">
-
-                  {partnerData?.country}
-
-                </h3>
-
-              </div>
-
-              <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-
-                <div className="flex items-center gap-3 mb-4">
-
-                  <Mail
-                    size={20}
-                    className="text-[#d4a574]"
-                  />
-
-                  <p className="text-neutral-400">
-
-                    Business Email
-
-                  </p>
-
-                </div>
-
-                <h3 className="text-xl font-semibold break-all">
-
-                  {partnerData?.businessEmail}
-
-                </h3>
-
-              </div>
-
-              <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-
-                <div className="flex items-center gap-3 mb-4">
-
-                  <Phone
-                    size={20}
-                    className="text-[#d4a574]"
-                  />
-
-                  <p className="text-neutral-400">
-
-                    Phone Number
-
-                  </p>
-
-                </div>
-
-                <h3 className="text-2xl font-semibold">
-
-                  {partnerData?.phoneNumber}
-
-                </h3>
-
-              </div>
-
-              <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 md:col-span-2">
-
-                <div className="flex items-center gap-3 mb-4">
-
-                  <MapPin
-                    size={20}
-                    className="text-[#d4a574]"
-                  />
-
-                  <p className="text-neutral-400">
-
-                    Full Address
-
-                  </p>
-
-                </div>
-
-                <h3 className="text-xl font-semibold leading-10">
-
-                  {partnerData?.address}
-
-                </h3>
-
-              </div>
+              </p>
 
             </div>
 
           </div>
 
-          <DashboardStats />
+          <div
+            className={`text-sm ${
+              luxuryMode
+                ? "text-neutral-500"
+                : "text-white/45"
+            }`}
+          >
+
+            Last Updated:
+            {" "}
+            {lastUpdated}
+
+          </div>
+
+        </div>
+
+        <PropertyToggle
+          showPropertyOverview={showPropertyOverview}
+          setShowPropertyOverview={setShowPropertyOverview}
+          luxuryMode={luxuryMode}
+        />
+
+        <div className="p-10 pt-6">
+
+          <PropertyOverview
+            partnerData={partnerData}
+            luxuryMode={luxuryMode}
+            showPropertyOverview={showPropertyOverview}
+          />
+
+          <DailyOperations
+            arrivalsToday={arrivalsToday}
+            departuresToday={departuresToday}
+            occupiedRooms={occupiedRooms}
+            cleaningQueue={cleaningQueue}
+            luxuryMode={luxuryMode}
+          />
+
+          {/* STATS */}
+
+          {
+
+            showStats && (
+
+              <DashboardStats
+                rooms={rooms}
+                bookings={bookings}
+                luxuryMode={luxuryMode}
+              />
+
+            )
+
+          }
+
+          {/* BOOKINGS */}
+
+          <ActivityFeed
+            bookings={bookings}
+            luxuryMode={luxuryMode}
+          />
 
           <UpcomingBookings
             bookings={bookings}
             updateBookingStatus={updateBookingStatus}
-          />
-
-          <RoomsSection
-            rooms={rooms}
-            editingRoom={editingRoom}
-            setEditingRoom={setEditingRoom}
-            updatedPrice={updatedPrice}
-            setUpdatedPrice={setUpdatedPrice}
-            setRooms={setRooms}
           />
 
         </div>

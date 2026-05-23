@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import { useRouter } from "next/navigation";
 
 import {
@@ -12,187 +14,220 @@ import {
   BarChart3,
   BadgeCheck,
   Settings,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 
 export default function DashboardSidebar() {
+
   const router = useRouter();
+
+  const [
+    collapsed,
+    setCollapsed,
+  ] = useState(false);
+
+  const menuItems = [
+
+    {
+      label: "Overview",
+      icon: LayoutDashboard,
+      active: true,
+      action: () => {},
+    },
+
+    {
+      label: "Property",
+      icon: Building2,
+      action: () =>
+        router.push(
+          "/partner/dashboard/property"
+        ),
+    },
+
+    {
+      label: "Rooms",
+      icon: BedDouble,
+      action: () =>
+        router.push(
+          "/partner/dashboard/rooms"
+        ),
+    },
+
+    {
+      label: "Gallery",
+      icon: Images,
+      action: () =>
+        router.push(
+          "/partner/dashboard/gallery"
+        ),
+    },
+
+    {
+      label: "Reservations",
+      icon: CalendarDays,
+      action: () =>
+        router.push(
+          "/partner/dashboard/reservations"
+        ),
+    },
+
+    {
+      label: "Pricing",
+      icon: Wallet,
+      action: () =>
+        router.push(
+          "/partner/dashboard/pricing"
+        ),
+    },
+
+    {
+      label: "Analytics",
+      icon: BarChart3,
+      action: () =>
+        router.push(
+          "/partner/dashboard/analytics"
+        ),
+    },
+
+    {
+      label: "Verification",
+      icon: BadgeCheck,
+      action: () =>
+        router.push(
+          "/partner/dashboard/verification"
+        ),
+    },
+
+    {
+      label: "Settings",
+      icon: Settings,
+      action: () =>
+        router.push(
+          "/partner/dashboard/settings"
+        ),
+    },
+
+  ];
 
   return (
 
-    <div>
-<aside className="w-[290px] border-r border-white/10 bg-white/[0.02] backdrop-blur-2xl p-6 flex flex-col justify-between">
+    <aside
+      className={`border-r border-white/10 bg-white/[0.02] backdrop-blur-2xl p-6 flex flex-col transition-all duration-300 ${
+        collapsed
+          ? "w-[110px]"
+          : "w-[290px]"
+      }`}
+    >
 
-        <div>
+      {/* TOP */}
 
-          <div className="mb-14">
+      <div className="flex items-start justify-between mb-14">
 
-            <p className="tracking-[0.35em] text-[#d4a574] text-xs mb-4">
+        {
 
-              NIELS PRIVÉ
+          !collapsed && (
 
-            </p>
+            <div>
 
-            <h1 className="text-3xl font-semibold leading-tight">
+              <p className="tracking-[0.35em] text-[#d4a574] text-xs mb-4">
 
-              Partner
-              <br />
-              Dashboard
+                NIELS PRIVÉ
 
-            </h1>
+              </p>
 
-          </div>
+              <h1 className="text-3xl font-semibold leading-tight">
 
-          <div className="space-y-3">
+                Partner
+                <br />
+                Dashboard
 
-            <button className="w-full flex items-center gap-4 bg-[#d4a574] text-black px-5 py-4 rounded-2xl font-medium">
+              </h1>
 
-              <LayoutDashboard size={20} />
+            </div>
 
-              Overview
+          )
 
-            </button>
+        }
 
-           <button
-  onClick={() =>
-    router.push("/partner/dashboard/property")
-  }
-  className="w-full flex items-center gap-4 hover:bg-white/[0.05] px-5 py-4 rounded-2xl transition-all"
->
+        <button
+          onClick={() =>
+            setCollapsed(
+              !collapsed
+            )
+          }
+          className="w-12 h-12 rounded-2xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] transition-all flex items-center justify-center"
+        >
 
-              <Building2 size={20} />
+          {
+            collapsed
+              ? (
+                <PanelLeftOpen size={20} />
+              )
+              : (
+                <PanelLeftClose size={20} />
+              )
+          }
 
-              Property
+        </button>
 
-            </button>
+      </div>
 
-           <button
-  onClick={() =>
-    router.push("/partner/dashboard/rooms")
-  }
-  className="w-full flex items-center gap-4 hover:bg-white/[0.05] px-5 py-4 rounded-2xl transition-all"
->
+      {/* MENU */}
 
-              <BedDouble size={20} />
+      <div className="space-y-3 flex-1">
 
-              Rooms
+        {
 
-            </button>
+          menuItems.map(
+            (
+              item: any,
+              index: number
+            ) => {
 
-          <button
-  onClick={() =>
-    router.push("/partner/dashboard/gallery")
-  }
-  className="w-full flex items-center gap-4 hover:bg-white/[0.05] px-5 py-4 rounded-2xl transition-all"
->
-              <Images size={20} />
+              const Icon =
+                item.icon;
 
-              Gallery
+              return (
 
-            </button>
+                <button
+                  key={index}
+                  onClick={
+                    item.action
+                  }
+                  className={`w-full flex items-center ${
+                    collapsed
+                      ? "justify-center"
+                      : "gap-4"
+                  } px-5 py-4 rounded-2xl transition-all font-medium ${
+                    item.active
+                      ? "bg-[#d4a574] text-black"
+                      : "hover:bg-white/[0.05]"
+                  }`}
+                >
 
-            <button
-  onClick={() =>
-    router.push("/partner/dashboard/reservations")
-  }
-  className="w-full flex items-center gap-4 hover:bg-white/[0.05] px-5 py-4 rounded-2xl transition-all"
->
-              <CalendarDays size={20} />
+                  <Icon size={20} />
 
-              Reservations
+                  {
 
-            </button>
+                    !collapsed && (
+                      item.label
+                    )
 
-            <button
-  onClick={() =>
-    router.push("/partner/dashboard/pricing")
-  }
-  className="w-full flex items-center gap-4 hover:bg-white/[0.05] px-5 py-4 rounded-2xl transition-all"
->
-              <Wallet size={20} />
+                  }
 
-              Pricing
+                </button>
 
-            </button>
+              );
 
-            <button
-  onClick={() =>
-    router.push(
-      "/partner/dashboard/analytics"
-    )
-  }
-  className="w-full flex items-center gap-4 hover:bg-white/[0.05] px-5 py-4 rounded-2xl transition-all"
->
+            }
+          )
 
-  <BarChart3 size={20} />
+        }
 
-  Analytics
+      </div>
 
-</button>
-
-            <button
-  onClick={() =>
-    router.push("/partner/dashboard/verification")
-  }
-  className="w-full flex items-center gap-4 hover:bg-white/[0.05] px-5 py-4 rounded-2xl transition-all"
->
-
-              <BadgeCheck size={20} />
-
-              Verification
-
-            </button>
-
-            <button
-  onClick={() =>
-    router.push("/partner/dashboard/settings")
-  }
-  className="w-full flex items-center gap-4 hover:bg-white/[0.05] px-5 py-4 rounded-2xl transition-all"
->
-
-              <Settings size={20} />
-
-              Settings
-
-            </button>
-
-          </div>
-
-        </div>
-
-        <div className="rounded-[30px] border border-white/10 bg-white/[0.03] p-6">
-
-          <p className="text-[#d4a574] text-sm mb-3">
-
-            PROPERTY STATUS
-
-          </p>
-
-          <h3 className="text-2xl font-semibold mb-4">
-
-            Verification
-            <br />
-            Pending
-
-          </h3>
-
-          <p className="text-neutral-400 leading-7 text-sm mb-6">
-
-            Complete onboarding and verification
-            to activate global visibility.
-
-          </p>
-
-          <button className="w-full bg-[#d4a574] text-black py-4 rounded-2xl font-medium">
-
-            Continue Setup
-
-          </button>
-
-        </div>
-
-      </aside>
-
-    </div>
+    </aside>
 
   );
 
