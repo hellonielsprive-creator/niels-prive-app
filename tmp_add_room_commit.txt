@@ -6,8 +6,6 @@ import {
   collection,
   addDoc,
   getDocs,
-  getDoc,
-  doc,
   query,
   where,
 } from "firebase/firestore";
@@ -26,8 +24,6 @@ import {
 
 import { useRouter } from "next/navigation";
 
-import { useDashboardData } from "@/app/components/dashboard/DashboardProvider";
-
 import {
   BedDouble,
   Users,
@@ -42,9 +38,6 @@ import {
 export default function AddRoomPage() {
 
   const router = useRouter();
-
-  const { syncAfterMutation } =
-    useDashboardData();
 
   /* ROOM */
 
@@ -95,67 +88,52 @@ export default function AddRoomPage() {
   /* FETCH HOTELS */
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      if (!user) {
-        return;
-      }
 
-      const fetchHotels = async () => {
+    const fetchHotels =
+      async () => {
+
         try {
-          const hotelsQuery = query(
-            collection(db, "hotels"),
-            where("partnerId", "==", user.uid)
+
+          const hotelsQuery =
+            query(
+              collection(
+                db,
+                "hotels"
+              ),
+              where(
+                "partnerId",
+                "==",
+                auth.currentUser?.uid
+              )
+            );
+
+          const snapshot =
+            await getDocs(
+              hotelsQuery
+            );
+
+          const hotelsData =
+            snapshot.docs.map(
+              (doc) => ({
+                id: doc.id,
+                ...doc.data(),
+              })
+            );
+
+          setHotels(
+            hotelsData
           );
 
-          let snapshot = await getDocs(hotelsQuery);
-
-          let hotelsData = snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-
-          if (hotelsData.length === 0) {
-            console.log("Add Room: No hotels found, attempting to create one...");
-
-            const partnerDocRef = doc(db, "partners", user.uid);
-            const partnerDoc = await getDoc(partnerDocRef);
-
-            let hotelName = "My Property";
-            if (partnerDoc.exists()) {
-              hotelName = (partnerDoc.data().propertyName as string) || hotelName;
-              console.log("Add Room: Found partner, propertyName is:", hotelName);
-            }
-
-            const newHotelRef = await addDoc(collection(db, "hotels"), {
-              name: hotelName,
-              partnerId: user.uid,
-              createdAt: new Date(),
-            });
-
-            console.log("Add Room: Created new hotel, id:", newHotelRef.id);
-
-            // Now fetch again to get the new hotel
-            snapshot = await getDocs(hotelsQuery);
-            hotelsData = snapshot.docs.map((doc) => ({
-              id: doc.id,
-              ...doc.data(),
-            }));
-          }
-
-          setHotels(hotelsData);
-
-          if (hotelsData.length === 1) {
-            setSelectedHotel(hotelsData[0].id);
-          }
         } catch (error) {
-          console.error("Add Room: Error fetching/creating hotels:", error);
+
+          console.log(error);
+
         }
+
       };
 
-      await fetchHotels();
-    });
+    fetchHotels();
 
-    return () => unsubscribe();
   }, []);
 
   /* ADD ROOM */
@@ -305,8 +283,6 @@ export default function AddRoomPage() {
 
         }
       );
-
-      await syncAfterMutation();
 
       alert(
         "Room added successfully"

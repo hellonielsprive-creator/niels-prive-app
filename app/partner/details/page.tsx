@@ -4,7 +4,16 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import {
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
+
+import {
   auth,
+  db,
 } from "@/app/firebase/config";
 import { updatePartnerProfile } from "@/lib/firestore/partners";
 
@@ -121,6 +130,8 @@ export default function PartnerDetailsPage() {
 
       }
 
+      console.log("Partner details: Current user uid:", currentUser.uid);
+
       await updatePartnerProfile(
         currentUser.uid,
         {
@@ -137,17 +148,38 @@ export default function PartnerDetailsPage() {
         businessEmail
       );
 
+      console.log("Partner details: Partner profile updated");
+
+      console.log("Partner details: Checking existing hotels for partner...");
+      const hotelsQuery = query(
+        collection(db, "hotels"),
+        where("partnerId", "==", currentUser.uid)
+      );
+      const hotelsSnapshot = await getDocs(hotelsQuery);
+      console.log("Partner details: Found", hotelsSnapshot.size, "hotels");
+
+      if (hotelsSnapshot.empty) {
+        console.log("Partner details: No hotels found, creating new hotel...");
+        const hotelRef = await addDoc(collection(db, "hotels"), {
+          name: propertyName,
+          partnerId: currentUser.uid,
+          createdAt: new Date(),
+        });
+        console.log("Partner details: Created hotel doc with id:", hotelRef.id);
+      }
+
       alert(
         "Partner Details Saved Successfully"
       );
 
+      console.log("Partner details: Redirecting to /partner/dashboard");
       router.push(
         "/partner/dashboard"
       );
 
     } catch (error) {
 
-      console.log(error);
+      console.error("Partner details: Error in handleSubmit:", error);
 
       alert(
         "Something went wrong"

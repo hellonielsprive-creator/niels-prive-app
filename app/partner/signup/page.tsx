@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { addDoc, collection } from "firebase/firestore";
 
 import {
   Mail,
@@ -69,6 +70,8 @@ export default function SignupPage() {
       const user =
         userCredential.user;
 
+      console.log("Partner signup: User created, uid:", user.uid);
+
       await setDoc(
         doc(
           db,
@@ -85,10 +88,24 @@ export default function SignupPage() {
         }
       );
 
+      console.log("Partner signup: Partner doc created successfully");
+
+      console.log("Partner signup: Attempting to create hotel doc...");
+      const hotelRef = await addDoc(
+        collection(db, "hotels"),
+        {
+          name: propertyName,
+          partnerId: user.uid,
+          createdAt: new Date(),
+        }
+      );
+      console.log("Partner signup: Hotel doc created successfully, id:", hotelRef.id);
+
       alert(
         "Welcome to Niels Privé"
       );
 
+      console.log("Partner signup: Redirecting to /partner/details");
       router.push(
         "/partner/details"
       );
