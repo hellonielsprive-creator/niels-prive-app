@@ -3,6 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import MobileBottomNav from "./components/MobileBottomNav";
 import { Toaster } from "react-hot-toast";
+import AiAssistantProvider from "./components/ai/AiAssistantProvider";
+import AiAssistantButton from "./components/ai/AiAssistantButton";
+import AiChatPanel from "./components/ai/AiChatPanel";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,10 +33,10 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <AiAssistantProvider>
+          {children}
 
-        {children}
-
-        <Toaster
+          <Toaster
   position="top-right"
   toastOptions={{
     style: {
@@ -44,8 +47,11 @@ export default function RootLayout({
   }}
 />
 
-        <MobileBottomNav />
+          <AiAssistantButton />
+          <AiChatPanel />
 
+          <MobileBottomNav />
+        </AiAssistantProvider>
       </body>
     </html>
   );

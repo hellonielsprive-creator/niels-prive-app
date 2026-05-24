@@ -695,14 +695,14 @@ export default function RoomPage() {
                       return;
                     }
 
-                    await createBooking({
+                    const bookingData = {
                       partnerId: room.partnerId,
                       bookingType: BOOKING_TYPES.ROOM,
                       userId: auth.currentUser?.uid,
                       roomId: room.id,
                       roomName: room.roomName,
                       hotelId: room.hotelId,
-                      hotelName: room.hotelName,
+                      hotelName: room.hotelName || "Luxury Property",
                       guestName:
                         auth.currentUser?.displayName ||
                         "Guest",
@@ -714,10 +714,21 @@ export default function RoomPage() {
                       checkOut: String(checkOut),
                       totalPrice: String(room.price),
                       status: "confirmed",
+                    };
+
+                    await createBooking(bookingData);
+
+                    const searchParams = new URLSearchParams({
+                      roomName: room.roomName,
+                      hotelName: room.hotelName || "Luxury Property",
+                      guests: String(guests),
+                      checkIn: String(checkIn),
+                      checkOut: String(checkOut),
+                      totalPrice: String(room.price),
                     });
 
                     router.push(
-                      "/payment"
+                      `/payment?${searchParams.toString()}`
                     );
 
                   } catch (error: any) {

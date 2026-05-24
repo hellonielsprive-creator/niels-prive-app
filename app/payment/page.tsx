@@ -7,6 +7,7 @@ import {
 
 import {
   useRouter,
+  useSearchParams,
 } from "next/navigation";
 
 import {
@@ -33,6 +34,7 @@ import {
 export default function PaymentPage() {
 
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [darkMode,
     setDarkMode,
@@ -41,6 +43,28 @@ export default function PaymentPage() {
   const [processing,
     setProcessing,
   ] = useState(false);
+
+  const roomName = searchParams.get("roomName") || "Premium Suite";
+  const hotelName = searchParams.get("hotelName") || "The Royal Atlantis";
+  const guests = searchParams.get("guests") || "2";
+  const checkIn = searchParams.get("checkIn");
+  const checkOut = searchParams.get("checkOut");
+  const totalPrice = searchParams.get("totalPrice") || "0";
+
+  const calculateNightCount = () => {
+    if (!checkIn || !checkOut) return 3;
+    const start = new Date(checkIn);
+    const end = new Date(checkOut);
+    const diffMs = end.getTime() - start.getTime();
+    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : 1;
+  };
+
+  const nightCount = calculateNightCount();
+  const roomPricePerNight = parseInt(totalPrice) || 0;
+  const taxes = Math.round(roomPricePerNight * 0.1);
+  const advancePayment = Math.round(roomPricePerNight * 0.3);
+  const totalReservation = roomPricePerNight + taxes;
 
   useEffect(() => {
 
@@ -246,13 +270,13 @@ export default function PaymentPage() {
 
                   <p className="uppercase tracking-[0.3em] text-[10px] text-white/60 mb-3">
 
-                    Dubai, UAE
+                    Luxury Stay
 
                   </p>
 
                   <h2 className="text-white text-5xl font-semibold mb-4">
 
-                    The Royal Atlantis
+                    {hotelName}
 
                   </h2>
 
@@ -301,7 +325,7 @@ export default function PaymentPage() {
 
                     <h3 className="text-2xl font-semibold">
 
-                      3 Nights
+                      {nightCount} Night{nightCount !== 1 ? "s" : ""}
 
                     </h3>
 
@@ -334,7 +358,7 @@ export default function PaymentPage() {
 
                     <h3 className="text-2xl font-semibold">
 
-                      2 Guests
+                      {guests} Guest{guests !== "1" ? "s" : ""}
 
                     </h3>
 
@@ -367,7 +391,7 @@ export default function PaymentPage() {
 
                     <h3 className="text-2xl font-semibold">
 
-                      Premium Suite
+                      {roomName}
 
                     </h3>
 
@@ -491,12 +515,12 @@ export default function PaymentPage() {
                       }
                     >
 
-                      Premium Suite
+                      {roomName}
 
                     </p>
 
                     <p className="font-semibold">
-                      ₹18,000
+                      ₹{roomPricePerNight.toLocaleString()}
                     </p>
 
                   </div>
@@ -516,7 +540,7 @@ export default function PaymentPage() {
                     </p>
 
                     <p className="font-semibold">
-                      ₹2,000
+                      ₹{taxes.toLocaleString()}
                     </p>
 
                   </div>
@@ -536,7 +560,7 @@ export default function PaymentPage() {
                     </p>
 
                     <p className="text-[#d4a574] font-semibold">
-                      ₹5,000
+                      ₹{advancePayment.toLocaleString()}
                     </p>
 
                   </div>
@@ -577,7 +601,7 @@ export default function PaymentPage() {
 
                   <h3 className="text-5xl font-semibold">
 
-                    ₹20,000
+                    ₹{totalReservation.toLocaleString()}
 
                   </h3>
 
