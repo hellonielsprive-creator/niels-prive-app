@@ -1,5 +1,7 @@
 "use client";
 
+import { memo, useMemo } from "react";
+
 import {
   CalendarDays,
   CheckCircle2,
@@ -10,63 +12,59 @@ import {
   Waves,
 } from "lucide-react";
 
-export default function UpcomingBookings({
+function UpcomingBookings({
   bookings,
   updateBookingStatus,
 }: any) {
+  const today = useMemo(
+    () => new Date(),
+    [bookings]
+  );
 
-  const today =
-    new Date();
+  const activeBookings = useMemo(
+    () =>
+      (bookings || [])
+        .filter(
+          (booking: any) =>
+            booking.status !== "cancelled"
+        )
+        .sort(
+          (a: any, b: any) =>
+            new Date(a.checkIn).getTime() -
+            new Date(b.checkIn).getTime()
+        ),
+    [bookings]
+  );
 
-  /* UPCOMING */
+  const occupiedRooms = useMemo(
+    () =>
+      (bookings || []).filter(
+        (booking: any) => {
+          if (
+            !booking.checkIn ||
+            !booking.checkOut
+          ) {
+            return false;
+          }
 
-  const activeBookings =
-    (bookings || [])
-      .filter(
-        (booking: any) =>
-          booking.status !==
-          "cancelled"
-      )
-      .sort(
-        (a: any, b: any) =>
-          new Date(
-            a.checkIn
-          ).getTime() -
-          new Date(
-            b.checkIn
-          ).getTime()
-      );
-
-  /* OCCUPIED */
-
-  const occupiedRooms =
-    (bookings || []).filter(
-      (booking: any) => {
-
-        if (
-          !booking.checkIn ||
-          !booking.CheckOut
-        ) return false;
-
-        const checkIn =
-          new Date(
+          const checkIn = new Date(
             booking.checkIn
           );
 
-        const checkOut =
-          new Date(
-            booking.CheckOut
+          const checkOut = new Date(
+            booking.checkOut
           );
 
-        return (
-          booking.status ===
-            "checked-in" &&
-          today >= checkIn &&
-          today <= checkOut
-        );
-
-      }
-    );
+          return (
+            booking.status ===
+              "checked-in" &&
+            today >= checkIn &&
+            today <= checkOut
+          );
+        }
+      ),
+    [bookings, today]
+  );
 
   /* STATUS UI */
 
@@ -362,7 +360,7 @@ export default function UpcomingBookings({
 
                       <h4 className="text-lg font-medium">
 
-                        {booking.CheckOut}
+                        {booking.checkOut}
 
                       </h4>
 
@@ -663,7 +661,7 @@ export default function UpcomingBookings({
 
                     <h4 className="text-lg font-medium">
 
-                      {booking.CheckOut}
+                      {booking.checkOut}
 
                     </h4>
 
@@ -722,5 +720,6 @@ export default function UpcomingBookings({
     </div>
 
   );
-
 }
+
+export default memo(UpcomingBookings);

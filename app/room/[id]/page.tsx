@@ -13,7 +13,6 @@ import {
 import {
   doc,
   getDoc,
-  addDoc,
   collection,
   getDocs,
   query,
@@ -24,6 +23,9 @@ import {
   db,
   auth,
 } from "@/app/firebase/config";
+
+import { BOOKING_TYPES } from "@/lib/bookings/schema";
+import { createBooking } from "@/lib/firestore/bookings";
 
 import {
   Star,
@@ -593,17 +595,34 @@ export default function RoomPage() {
                     );
 
                     const bookingsQuery =
-                      query(
-                        collection(
-                          db,
-                          "bookings"
-                        ),
-                        where(
-                          "roomName",
-                          "==",
-                          room.roomName
-                        )
-                      );
+                      room.partnerId
+                        ? query(
+                            collection(
+                              db,
+                              "bookings"
+                            ),
+                            where(
+                              "partnerId",
+                              "==",
+                              room.partnerId
+                            ),
+                            where(
+                              "roomName",
+                              "==",
+                              room.roomName
+                            )
+                          )
+                        : query(
+                            collection(
+                              db,
+                              "bookings"
+                            ),
+                            where(
+                              "roomName",
+                              "==",
+                              room.roomName
+                            )
+                          );
 
                     const existingBookings =
                       await getDocs(
@@ -666,61 +685,36 @@ export default function RoomPage() {
 
                     }
 
-                    await addDoc(
-                      collection(
-                        db,
-                        "bookings"
-                      ),
-                      {
-                        userId:
-                          auth.currentUser?.uid,
+                    if (!room.partnerId) {
+                      alert(
+                        "This room is not linked to a partner account yet."
+                      );
 
-                        bookingType:
-                          "room",
+                      setBookingLoading(false);
 
-                        roomId:
-                          room.id,
+                      return;
+                    }
 
-                        roomName:
-                          room.roomName,
-
-                        guestName:
-                          auth.currentUser
-                            ?.displayName ||
-                          "Guest",
-
-                        guestEmail:
-                          auth.currentUser
-                            ?.email ||
-                          "guest@niels.com",
-
-                        guests:
-                          String(
-                            guests
-                          ),
-
-                        checkIn:
-                          String(
-                            checkIn
-                          ),
-
-                        checkOut:
-                          String(
-                            checkOut
-                          ),
-
-                        totalPrice:
-                          String(
-                            room.price
-                          ),
-
-                        status:
-                          "confirmed",
-
-                        createdAt:
-                          new Date(),
-                      }
-                    );
+                    await createBooking({
+                      partnerId: room.partnerId,
+                      bookingType: BOOKING_TYPES.ROOM,
+                      userId: auth.currentUser?.uid,
+                      roomId: room.id,
+                      roomName: room.roomName,
+                      hotelId: room.hotelId,
+                      hotelName: room.hotelName,
+                      guestName:
+                        auth.currentUser?.displayName ||
+                        "Guest",
+                      guestEmail:
+                        auth.currentUser?.email ||
+                        "guest@niels.com",
+                      guests: String(guests),
+                      checkIn: String(checkIn),
+                      checkOut: String(checkOut),
+                      totalPrice: String(room.price),
+                      status: "confirmed",
+                    });
 
                     router.push(
                       "/payment"

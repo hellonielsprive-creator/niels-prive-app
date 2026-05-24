@@ -1,5 +1,7 @@
 "use client";
 
+import { memo } from "react";
+
 import {
   Building2,
   BadgeCheck,
@@ -9,7 +11,7 @@ import {
   MapPin,
 } from "lucide-react";
 
-export default function PropertyOverview({
+function PropertyOverview({
   partnerData,
   luxuryMode,
   showPropertyOverview,
@@ -247,5 +249,6 @@ export default function PropertyOverview({
     </div>
 
   );
-
 }
+
+export default memo(PropertyOverview);

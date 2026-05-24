@@ -24,6 +24,8 @@ import {
 
 import { useRouter } from "next/navigation";
 
+import { useDashboardData } from "@/app/components/dashboard/DashboardProvider";
+
 import {
   BedDouble,
   Users,
@@ -38,6 +40,9 @@ import {
 export default function AddRoomPage() {
 
   const router = useRouter();
+
+  const { syncAfterMutation } =
+    useDashboardData();
 
   /* ROOM */
 
@@ -283,6 +288,8 @@ export default function AddRoomPage() {
 
         }
       );
+
+      await syncAfterMutation();
 
       alert(
         "Room added successfully"

@@ -1,5 +1,7 @@
 "use client";
 
+import { memo } from "react";
+
 import {
   Sparkles,
   BedDouble,
@@ -8,7 +10,7 @@ import {
   BrushCleaning,
 } from "lucide-react";
 
-export default function DailyOperations({
+function DailyOperations({
   arrivalsToday,
   departuresToday,
   occupiedRooms,
@@ -491,5 +493,6 @@ export default function DailyOperations({
     </div>
 
   );
-
 }
+
+export default memo(DailyOperations);

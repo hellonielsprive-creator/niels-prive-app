@@ -23,9 +23,13 @@ import {
 
 import { db } from "@/app/firebase/config";
 
+import { useDashboardData } from "@/app/components/dashboard/DashboardProvider";
+
 export default function VerificationPage() {
 
   const router = useRouter();
+
+  const { partnerId } = useDashboardData();
 
   const [loading, setLoading] =
     useState(false);
@@ -62,6 +66,11 @@ export default function VerificationPage() {
 
       try {
 
+        if (!partnerId) {
+          alert("Please sign in");
+          return;
+        }
+
         setLoading(true);
 
         await addDoc(
@@ -70,15 +79,10 @@ export default function VerificationPage() {
             "partnerVerification"
           ),
           {
-
             ...formData,
-
-            status:
-              "Under Review",
-
-            submittedAt:
-              new Date(),
-
+            partnerId,
+            status: "Under Review",
+            submittedAt: new Date(),
           }
         );
 

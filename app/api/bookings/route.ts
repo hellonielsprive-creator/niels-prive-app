@@ -1,58 +1,66 @@
+import { createBooking } from "@/lib/firestore/bookings";
+import { BOOKING_TYPES } from "@/lib/bookings/schema";
 
+const ALLOWED_BOOKING_TYPES = new Set<string>(
+  Object.values(BOOKING_TYPES)
+);
 
-import { initializeApp, getApps } from "firebase/app";
+function normalizeBookingBody(body: unknown) {
+  if (!body || typeof body !== "object") {
+    throw new Error("Invalid booking payload");
+  }
 
-import {
-  getFirestore,
-  addDoc,
-  collection,
-} from "firebase/firestore";
+  const payload = body as Record<string, unknown>;
+  const bookingType =
+    typeof payload.bookingType === "string" &&
+    ALLOWED_BOOKING_TYPES.has(payload.bookingType)
+      ? payload.bookingType
+      : BOOKING_TYPES.HOTEL;
+  const status =
+    typeof payload.status === "string" &&
+    payload.status.length > 0
+      ? payload.status
+      : "confirmed";
+  const checkIn =
+    typeof payload.checkIn === "string"
+      ? payload.checkIn
+      : "";
+  const checkOut =
+    typeof payload.checkOut === "string"
+      ? payload.checkOut
+      : "";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDAuFcSLHh7wW00f6_4JRL7IdCI5keDNIY",
-  authDomain: "niels-prive.firebaseapp.com",
-  projectId: "niels-prive",
-  storageBucket: "niels-prive.firebasestorage.app",
-  messagingSenderId: "117671092679",
-  appId: "1:117671092679:web:4d120d91d445d2bb8479e2",
-  measurementId: "G-E7Z7C7WJWY",
-};
-
-const app =
-  getApps().length === 0
-    ? initializeApp(firebaseConfig)
-    : getApps()[0];
-
-const db = getFirestore(app);
+  return {
+    ...payload,
+    bookingType,
+    status,
+    checkIn,
+    checkOut,
+  };
+}
 
 export async function POST(req: Request) {
-
   try {
-
     const body = await req.json();
+    const payload = normalizeBookingBody(body);
 
-    const booking = await addDoc(
-      collection(db, "bookings"),
-      {
-        ...body,
-        createdAt: Date.now(),
-      }
-    );
+    const bookingId = await createBooking(payload);
 
     return Response.json({
       success: true,
-      bookingId: booking.id,
+      bookingId,
     });
-
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Booking failed";
 
     console.log(error);
 
     return Response.json({
       success: false,
-      error: error.message,
+      error: message,
     });
-
   }
-
 }

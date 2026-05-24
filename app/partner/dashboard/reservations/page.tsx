@@ -1,121 +1,31 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
 import { useRouter } from "next/navigation";
 
-import {
-  collection,
-  getDocs,
-  updateDoc,
-  doc,
-} from "firebase/firestore";
+import { useMemo } from "react";
 
-import { db } from "@/app/firebase/config";
+import { useDashboardData } from "@/app/components/dashboard/DashboardProvider";
+import { sortBookingsByCreatedAt } from "@/lib/bookings/schema";
 
 export default function ReservationsPage() {
 
   const router = useRouter();
 
-  const [bookings, setBookings] =
-    useState<any[]>([]);
+  const {
+    bookings,
+    isLoading,
+    updateBookingStatus,
+  } = useDashboardData();
 
-  const [loading, setLoading] =
-    useState(true);
+  const displayBookings = useMemo(
+    () =>
+      sortBookingsByCreatedAt(
+        bookings as Array<{ createdAt?: unknown }>
+      ).slice(0, 20) as any[],
+    [bookings]
+  );
 
-  useEffect(() => {
-
-    const fetchBookings = async () => {
-
-      try {
-
-        const querySnapshot =
-          await getDocs(
-            collection(db, "bookings")
-          );
-
-        const bookingsData =
-          querySnapshot.docs.map(
-            (doc) => ({
-              id: doc.id,
-              ...doc.data(),
-            })
-          );
-
-        const sortedBookings =
-          bookingsData
-            .sort(
-              (a: any, b: any) =>
-
-                (
-                  b.createdAt?.seconds || 0
-                ) -
-                (
-                  a.createdAt?.seconds || 0
-                )
-
-            )
-            .slice(0, 20);
-
-        setBookings(
-          sortedBookings
-        );
-
-      } catch (error) {
-
-        console.log(error);
-
-      } finally {
-
-        setLoading(false);
-
-      }
-
-    };
-
-    fetchBookings();
-
-  }, []);
-
-  const updateBookingStatus =
-    async (
-      id: string,
-      status: string
-    ) => {
-
-      try {
-
-        await updateDoc(
-          doc(db, "bookings", id),
-          {
-            status,
-          }
-        );
-
-        setBookings((prevBookings) =>
-
-          prevBookings.map((booking) =>
-
-            booking.id === id
-              ? {
-                  ...booking,
-                  status,
-                }
-              : booking
-
-          )
-
-        );
-
-      } catch (error) {
-
-        console.log(error);
-
-      }
-
-    };
-
-  if (loading) {
+  if (isLoading) {
 
     return (
 
@@ -178,7 +88,7 @@ export default function ReservationsPage() {
 
         <div className="grid md:grid-cols-2 gap-6">
 
-          {bookings
+          {displayBookings
             .filter(
               (booking) =>
                 booking.status !==

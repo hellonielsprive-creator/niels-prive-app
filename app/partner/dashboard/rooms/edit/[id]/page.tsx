@@ -12,9 +12,14 @@ import {
 
 import { db } from "@/app/firebase/config";
 
+import { useDashboardData } from "@/app/components/dashboard/DashboardProvider";
+
 export default function EditRoomPage() {
 
   const router = useRouter();
+
+  const { syncAfterMutation } =
+    useDashboardData();
 
   const params = useParams();
 
@@ -155,6 +160,8 @@ export default function EditRoomPage() {
             image,
           }
         );
+
+        await syncAfterMutation();
 
         alert(
           "Room updated successfully"

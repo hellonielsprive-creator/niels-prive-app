@@ -1,13 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import {
-  collection,
-  addDoc,
-} from "firebase/firestore";
-
-import { db } from "@/app/firebase/config";
+  auth,
+} from "@/app/firebase/config";
+import { updatePartnerProfile } from "@/lib/firestore/partners";
 
 import {
   Building2,
@@ -26,6 +25,8 @@ import {
 } from "lucide-react";
 
 export default function PartnerDetailsPage() {
+
+  const router = useRouter();
 
   const [darkMode, setDarkMode] =
     useState(true);
@@ -107,10 +108,22 @@ export default function PartnerDetailsPage() {
 
     try {
 
-      await addDoc(
-        collection(db, "partners"),
-        {
+      const currentUser =
+        auth.currentUser;
 
+      if (!currentUser) {
+
+        alert(
+          "Please sign in"
+        );
+
+        return;
+
+      }
+
+      await updatePartnerProfile(
+        currentUser.uid,
+        {
           propertyType: selectedType,
           propertyName,
           country,
@@ -120,13 +133,16 @@ export default function PartnerDetailsPage() {
           businessEmail,
           phoneNumber,
           priceRange,
-          createdAt: Date.now(),
-
-        }
+        },
+        businessEmail
       );
 
       alert(
         "Partner Details Saved Successfully"
+      );
+
+      router.push(
+        "/partner/dashboard"
       );
 
     } catch (error) {
@@ -238,7 +254,9 @@ export default function PartnerDetailsPage() {
                 />
 
                 <h3 className="text-2xl font-semibold mb-3">
+
                   Premium
+
                 </h3>
 
                 <p className={`leading-7 text-sm ${
@@ -265,7 +283,9 @@ export default function PartnerDetailsPage() {
                 />
 
                 <h3 className="text-2xl font-semibold mb-3">
+
                   Trusted
+
                 </h3>
 
                 <p className={`leading-7 text-sm ${
@@ -292,7 +312,9 @@ export default function PartnerDetailsPage() {
                 />
 
                 <h3 className="text-2xl font-semibold mb-3">
+
                   Global
+
                 </h3>
 
                 <p className={`leading-7 text-sm ${
@@ -494,7 +516,7 @@ export default function PartnerDetailsPage() {
                       className={`w-full rounded-2xl pl-14 pr-5 py-5 outline-none border transition-all ${
                         darkMode
                           ? "bg-white/[0.03] border-white/10 focus:border-[#d4a574]"
-                          : "bg-white border-black/10 focus:border-[#d4a574]"
+                        : "bg-white border-black/10 focus:border-[#d4a574]"
                       }`}
                     />
 

@@ -1,17 +1,17 @@
 "use client";
 
 import { useState } from "react";
-
 import Link from "next/link";
 
 import {
-  User,
   Mail,
   Lock,
+  User,
+  Building2,
   ArrowRight,
-  Sparkles,
-  Globe2,
   ShieldCheck,
+  Globe2,
+  Sparkles,
 } from "lucide-react";
 
 import {
@@ -37,16 +37,16 @@ export default function SignupPage() {
   const [loading, setLoading] =
     useState(false);
 
-  const [fullName, setFullName] =
-    useState("");
-
   const [email, setEmail] =
     useState("");
 
   const [password, setPassword] =
     useState("");
 
-  const [error, setError] =
+  const [fullName, setFullName] =
+    useState("");
+
+  const [propertyName, setPropertyName] =
     useState("");
 
   const handleSignup = async (
@@ -58,7 +58,6 @@ export default function SignupPage() {
     try {
 
       setLoading(true);
-      setError("");
 
       const userCredential =
         await createUserWithEmailAndPassword(
@@ -73,12 +72,13 @@ export default function SignupPage() {
       await setDoc(
         doc(
           db,
-          "users",
+          "partners",
           user.uid
         ),
         {
           fullName,
-          email,
+          propertyName,
+          businessEmail: email,
 
           createdAt:
             new Date().toISOString(),
@@ -89,13 +89,15 @@ export default function SignupPage() {
         "Welcome to Niels Privé"
       );
 
-      router.push("/");
-
-    } catch (err: any) {
-
-      setError(
-        err.message
+      router.push(
+        "/partner/details"
       );
+
+    } catch (error: any) {
+
+      console.log(error);
+
+      alert(error.message);
 
     } finally {
 
@@ -107,14 +109,14 @@ export default function SignupPage() {
 
   return (
 
-    <main className="min-h-screen bg-black text-white overflow-hidden relative">
+    <main className="min-h-screen bg-black text-white overflow-hidden">
 
       {/* BACKGROUND */}
 
       <div className="absolute inset-0">
 
         <img
-          src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2070&auto=format&fit=crop"
+          src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2070&auto=format&fit=crop"
           alt="Luxury"
           className="w-full h-full object-cover opacity-20"
         />
@@ -125,39 +127,39 @@ export default function SignupPage() {
 
       {/* CONTENT */}
 
-      <section className="relative z-10 min-h-screen flex items-center justify-center px-5 py-16">
+      <section className="relative z-10 min-h-screen flex items-center justify-center px-6 py-20">
 
-        <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-14 items-center">
+        <div className="w-full max-w-7xl grid lg:grid-cols-2 gap-14 items-center">
 
-          {/* LEFT */}
+          {/* LEFT SIDE */}
 
-          <div className="hidden lg:block">
+          <div>
 
             <p className="tracking-[0.4em] text-[#d4a574] text-xs mb-6">
 
-              NIELS PRIVÉ
+              NIELS PRIVÉ PARTNERS
 
             </p>
 
             <h1 className="text-6xl leading-[1.05] font-semibold mb-8">
 
-              Luxury Travel
+              Build The Future
               <br />
-              Begins Here
+              Of Luxury Hospitality
 
             </h1>
 
             <p className="text-neutral-300 text-lg leading-9 max-w-2xl mb-10">
 
-              Create your Niels Privé account and
-              unlock premium stays,
-              curated destinations,
-              luxury experiences,
-              and elegant travel management.
+              Join a global hospitality platform designed for
+              premium hotels, resorts, villas, and curated
+              stays. Manage reservations, rooms, pricing,
+              media, and guest experiences through one
+              intelligent luxury ecosystem.
 
             </p>
 
-            {/* FEATURES */}
+            {/* FEATURE LIST */}
 
             <div className="space-y-5">
 
@@ -165,7 +167,7 @@ export default function SignupPage() {
 
                 <div className="w-12 h-12 rounded-2xl bg-[#d4a574]/15 border border-[#d4a574]/30 flex items-center justify-center">
 
-                  <Sparkles
+                  <ShieldCheck
                     className="text-[#d4a574]"
                     size={22}
                   />
@@ -176,13 +178,13 @@ export default function SignupPage() {
 
                   <h3 className="font-medium text-lg">
 
-                    Curated Luxury Stays
+                    Secure Partner Infrastructure
 
                   </h3>
 
                   <p className="text-neutral-400 text-sm">
 
-                    Premium hotels, villas, and experiences worldwide.
+                    Protected dashboards with intelligent management systems.
 
                   </p>
 
@@ -205,13 +207,13 @@ export default function SignupPage() {
 
                   <h3 className="font-medium text-lg">
 
-                    Global Destinations
+                    Global Luxury Exposure
 
                   </h3>
 
                   <p className="text-neutral-400 text-sm">
 
-                    Discover handpicked luxury escapes across the world.
+                    Reach travelers across premium international destinations.
 
                   </p>
 
@@ -223,7 +225,7 @@ export default function SignupPage() {
 
                 <div className="w-12 h-12 rounded-2xl bg-[#d4a574]/15 border border-[#d4a574]/30 flex items-center justify-center">
 
-                  <ShieldCheck
+                  <Sparkles
                     className="text-[#d4a574]"
                     size={22}
                   />
@@ -234,13 +236,13 @@ export default function SignupPage() {
 
                   <h3 className="font-medium text-lg">
 
-                    Secure Reservations
+                    Luxury Experience Platform
 
                   </h3>
 
                   <p className="text-neutral-400 text-sm">
 
-                    Trusted booking infrastructure with elegant guest experiences.
+                    Cinematic presentation designed for modern hospitality brands.
 
                   </p>
 
@@ -252,13 +254,13 @@ export default function SignupPage() {
 
           </div>
 
-          {/* RIGHT */}
+          {/* RIGHT SIDE */}
 
           <div className="relative">
 
             <div className="absolute inset-0 bg-[#d4a574]/10 blur-3xl rounded-full" />
 
-            <div className="relative rounded-[40px] border border-white/10 bg-white/[0.05] backdrop-blur-2xl p-7 md:p-10">
+            <div className="relative rounded-[40px] border border-white/10 bg-white/[0.04] backdrop-blur-2xl p-10">
 
               <div className="mb-10">
 
@@ -270,14 +272,14 @@ export default function SignupPage() {
 
                 <h2 className="text-4xl font-semibold mb-3">
 
-                  Join Niels Privé
+                  Partner Registration
 
                 </h2>
 
                 <p className="text-neutral-400 leading-8">
 
-                  Create your account and begin
-                  your luxury hospitality journey.
+                  Create your Niels Privé partner account
+                  and access your hospitality dashboard.
 
                 </p>
 
@@ -288,7 +290,7 @@ export default function SignupPage() {
                 className="space-y-6"
               >
 
-                {/* NAME */}
+                {/* FULL NAME */}
 
                 <div>
 
@@ -320,13 +322,45 @@ export default function SignupPage() {
 
                 </div>
 
+                {/* PROPERTY NAME */}
+
+                <div>
+
+                  <label className="text-sm text-neutral-300 mb-3 block">
+
+                    Property / Brand Name
+
+                  </label>
+
+                  <div className="flex items-center gap-4 bg-white/[0.04] border border-white/10 rounded-2xl px-5 h-16">
+
+                    <Building2
+                      size={20}
+                      className="text-[#d4a574]"
+                    />
+
+                    <input
+                      type="text"
+                      placeholder="Luxury Hotel / Resort"
+                      value={propertyName}
+                      onChange={(e) =>
+                        setPropertyName(e.target.value)
+                      }
+                      className="bg-transparent outline-none w-full text-white placeholder:text-neutral-500"
+                      required
+                    />
+
+                  </div>
+
+                </div>
+
                 {/* EMAIL */}
 
                 <div>
 
                   <label className="text-sm text-neutral-300 mb-3 block">
 
-                    Email Address
+                    Business Email
 
                   </label>
 
@@ -339,7 +373,7 @@ export default function SignupPage() {
 
                     <input
                       type="email"
-                      placeholder="you@example.com"
+                      placeholder="partner@nielsprive.com"
                       value={email}
                       onChange={(e) =>
                         setEmail(e.target.value)
@@ -384,31 +418,19 @@ export default function SignupPage() {
 
                 </div>
 
-                {/* ERROR */}
-
-                {error && (
-
-                  <p className="text-red-400 text-sm">
-
-                    {error}
-
-                  </p>
-
-                )}
-
                 {/* BUTTON */}
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full h-16 rounded-2xl bg-[#d4a574] hover:bg-[#c3925c] transition-all text-black font-semibold flex items-center justify-center gap-3"
+                  className="w-full h-16 rounded-2xl bg-[#d4a574] hover:bg-[#c3925c] transition-all text-black font-semibold flex items-center justify-center gap-3 mt-4"
                 >
 
                   {loading ? (
                     "Creating Account..."
                   ) : (
                     <>
-                      Create Account
+                      Create Partner Account
                       <ArrowRight size={20} />
                     </>
                   )}
@@ -423,33 +445,16 @@ export default function SignupPage() {
 
                 <p className="text-neutral-400">
 
-                  Already have an account?{" "}
+                  Already have a partner account?{" "}
 
                   <Link
                     href="/signin"
                     className="text-[#d4a574] hover:text-[#e6bb8c] transition-all"
                   >
-
                     Sign In
-
                   </Link>
 
                 </p>
-
-              </div>
-
-              {/* PARTNER */}
-
-              <div className="mt-5 text-center">
-
-                <Link
-                  href="/partner/signup"
-                  className="text-sm text-neutral-500 hover:text-[#d4a574] transition-all"
-                >
-
-                  Partner with Niels Privé
-
-                </Link>
 
               </div>
 

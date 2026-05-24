@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { useRouter } from "next/navigation";
 
@@ -21,38 +21,43 @@ import {
 } from "@/app/components/rooms/roomHelpers";
 
 import {
-  collection,
-  getDocs,
-  query,
-  where,
-  updateDoc,
-  doc,
-} from "firebase/firestore";
-
+  useDashboardData,
+} from "@/app/components/dashboard/DashboardProvider";
+import { useDashboardRoomBookings } from "@/lib/dashboard/useDashboardRoomBookings";
 import {
-  db,
-  auth,
-} from "@/app/firebase/config";
+  archiveRoom,
+  updateRoomManualStatus,
+} from "@/lib/firestore/rooms";
 
 import {
   Sparkles,
 } from "lucide-react";
 
+type DashboardRoom = Record<string, unknown> & {
+  id: string;
+  roomName?: string;
+};
+
+type DashboardBooking = Record<string, unknown> & {
+  roomName?: string;
+};
+
 export default function RoomsPage() {
 
   const router = useRouter();
 
-  const [rooms,
-    setRooms,
-  ] = useState<any[]>([]);
+  const {
+    partnerId,
+    isLoading,
+    patchRooms,
+    syncAfterMutation,
+  } = useDashboardData();
 
-  const [bookings,
-    setBookings,
-  ] = useState<any[]>([]);
-
-  const [loading,
-    setLoading,
-  ] = useState(true);
+  const { rooms, bookings } =
+    useDashboardRoomBookings() as {
+      rooms: DashboardRoom[];
+      bookings: DashboardBooking[];
+    };
 
   const [search,
     setSearch,
@@ -64,104 +69,11 @@ export default function RoomsPage() {
 
   const [selectedRoom,
     setSelectedRoom,
-  ] = useState<any>(null);
+  ] = useState<DashboardRoom | null>(null);
 
   const [galleryPreview,
     setGalleryPreview,
   ] = useState<string[]>([]);
-
-  useEffect(() => {
-
-    if (!auth.currentUser) {
-
-      router.push("/signin");
-
-      return;
-
-    }
-
-    const fetchRooms =
-      async () => {
-
-        try {
-
-          const roomsQuery =
-            query(
-              collection(
-                db,
-                "rooms"
-              ),
-              where(
-                "partnerId",
-                "==",
-                auth.currentUser?.uid
-              )
-            );
-
-          const roomsSnapshot =
-            await getDocs(
-              roomsQuery
-            );
-
-          const roomsData =
-            roomsSnapshot.docs.map(
-              (doc) => ({
-                id: doc.id,
-                ...doc.data(),
-              })
-            );
-
-          setRooms(
-            roomsData
-          );
-
-          const bookingsSnapshot =
-            await getDocs(
-              collection(
-                db,
-                "bookings"
-              )
-            );
-
-          const bookingsData =
-            bookingsSnapshot.docs.map(
-              (doc) => ({
-                id: doc.id,
-                ...doc.data(),
-              })
-            );
-
-          const partnerBookings =
-            bookingsData.filter(
-              (booking: any) =>
-
-                roomsData.some(
-                  (room: any) =>
-                    room.roomName ===
-                    booking.roomName
-                )
-
-            );
-
-          setBookings(
-            partnerBookings
-          );
-
-        } catch (error) {
-
-          console.log(error);
-
-        } finally {
-
-          setLoading(false);
-
-        }
-
-      };
-
-    fetchRooms();
-
-  }, []);
 
   /* SEARCH */
 
@@ -191,28 +103,20 @@ export default function RoomsPage() {
 
       try {
 
-        await updateDoc(
-          doc(
-            db,
-            "rooms",
-            roomId
-          ),
-          {
-            manualStatus: status,
-          }
+        await updateRoomManualStatus(
+          roomId,
+          status,
+          partnerId
         );
 
-        setRooms(
-          rooms.map((room) =>
-
+        patchRooms((currentRooms) =>
+          currentRooms.map((room) =>
             room.id === roomId
               ? {
                   ...room,
-                  manualStatus:
-                    status,
+                  manualStatus: status,
                 }
               : room
-
           )
         );
 
@@ -242,27 +146,19 @@ export default function RoomsPage() {
 
       try {
 
-        await updateDoc(
-          doc(
-            db,
-            "rooms",
-            selectedRoom.id
-          ),
-          {
-            archived: true,
-          }
+        await archiveRoom(
+          selectedRoom.id,
+          partnerId
         );
 
-        setRooms(
-          (prevRooms) =>
-
-            prevRooms.filter(
-              (room) =>
-                room.id !==
-                selectedRoom.id
-            )
-
+        patchRooms((prevRooms) =>
+          prevRooms.filter(
+            (room) =>
+              room.id !== selectedRoom.id
+          )
         );
+
+        await syncAfterMutation();
 
         toast.success(
           `${selectedRoom.roomName} archived`
@@ -290,7 +186,7 @@ export default function RoomsPage() {
 
   /* LOADING */
 
-  if (loading) {
+  if (isLoading) {
 
     return (
 
@@ -342,7 +238,7 @@ export default function RoomsPage() {
 
         {/* EMPTY */}
 
-        {!loading &&
+        {!isLoading &&
           filteredRooms.length === 0 && (
 
           <div className="border border-dashed border-white/10 rounded-[40px] p-16 text-center bg-white/[0.02]">
@@ -386,13 +282,13 @@ export default function RoomsPage() {
 
             const roomRevenue =
               getRoomRevenue(
-                room.roomName,
+                room.roomName ?? "",
                 bookings
               );
 
             const roomBookings =
               getRoomBookings(
-                room.roomName,
+                room.roomName ?? "",
                 bookings
               );
 

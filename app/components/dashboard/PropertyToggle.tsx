@@ -1,11 +1,13 @@
 "use client";
 
+import { memo } from "react";
+
 import {
   Eye,
   EyeOff,
 } from "lucide-react";
 
-export default function PropertyToggle({
+function PropertyToggle({
   showPropertyOverview,
   setShowPropertyOverview,
   luxuryMode,
@@ -49,5 +51,6 @@ export default function PropertyToggle({
     </div>
 
   );
-
 }
+
+export default memo(PropertyToggle);

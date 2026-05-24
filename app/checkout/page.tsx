@@ -1,8 +1,9 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { addDoc, collection } from "firebase/firestore";
-import { db, auth } from "@/app/firebase/config";
+import { auth } from "@/app/firebase/config";
+import { BOOKING_TYPES } from "@/lib/bookings/schema";
+import { createBooking } from "@/lib/firestore/bookings";
 
 export default function CheckoutPage() {
 
@@ -30,21 +31,19 @@ export default function CheckoutPage() {
     console.log("HANDLE BOOKING RUNNING");
     console.log(auth.currentUser);
 
-  await addDoc(
-    collection(db, "bookings"),
-    {
-      
-
-      airline,
-      from,
-      to,
-      price,
-      cabin,
-      travelers,
-      userId: auth.currentUser?.uid || "guest",
-      createdAt: new Date(),
-    }
-  );
+  await createBooking({
+    bookingType: BOOKING_TYPES.FLIGHT,
+    airline,
+    from,
+    to,
+    price,
+    cabin,
+    travelers,
+    userId: auth.currentUser?.uid || "guest",
+    checkIn: "",
+    checkOut: "",
+    status: "confirmed",
+  });
 
   window.location.href =
     "/confirmation";

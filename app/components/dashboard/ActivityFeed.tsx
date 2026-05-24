@@ -1,5 +1,7 @@
 "use client";
 
+import { memo, useMemo } from "react";
+
 import {
   CheckCircle2,
   XCircle,
@@ -8,25 +10,16 @@ import {
   BrushCleaning,
 } from "lucide-react";
 
-export default function ActivityFeed({
+import { selectLatestActivities } from "@/lib/dashboard/activity";
+
+function ActivityFeed({
   bookings,
   luxuryMode,
 }: any) {
-
-  const latestActivities =
-    [...bookings]
-      .sort(
-        (a: any, b: any) =>
-
-          (
-            b.createdAt?.seconds || 0
-          ) -
-          (
-            a.createdAt?.seconds || 0
-          )
-
-      )
-      .slice(0, 6);
+  const latestActivities = useMemo(
+    () => selectLatestActivities(bookings),
+    [bookings]
+  );
 
   return (
 
@@ -195,5 +188,6 @@ export default function ActivityFeed({
     </div>
 
   );
-
 }
+
+export default memo(ActivityFeed);

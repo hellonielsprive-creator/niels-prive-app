@@ -1,5 +1,7 @@
 "use client";
 
+import { memo } from "react";
+
 import {
   TrendingUp,
   BedDouble,
@@ -10,7 +12,7 @@ import {
   BarChart3,
 } from "lucide-react";
 
-export default function DashboardStats({
+function DashboardStats({
   rooms,
   bookings,
   luxuryMode,
@@ -45,7 +47,7 @@ export default function DashboardStats({
 
         if (
           !booking.checkIn ||
-          !booking.CheckOut
+          !booking.checkOut
         ) return false;
 
         const checkIn =
@@ -55,7 +57,7 @@ export default function DashboardStats({
 
         const checkOut =
           new Date(
-            booking.CheckOut
+            booking.checkOut
           );
 
         return (
@@ -501,5 +503,6 @@ export default function DashboardStats({
     </div>
 
   );
-
 }
+
+export default memo(DashboardStats);

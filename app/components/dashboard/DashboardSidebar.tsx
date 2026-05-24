@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useMemo, useState } from "react";
 
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import {
   LayoutDashboard,
@@ -18,97 +19,85 @@ import {
   PanelLeftOpen,
 } from "lucide-react";
 
-export default function DashboardSidebar() {
+const menuConfig = [
+  {
+    label: "Overview",
+    icon: LayoutDashboard,
+    href: "/partner/dashboard",
+  },
+  {
+    label: "Property",
+    icon: Building2,
+    href: "/partner/dashboard/property",
+  },
+  {
+    label: "Rooms",
+    icon: BedDouble,
+    href: "/partner/dashboard/rooms",
+  },
+  {
+    label: "Gallery",
+    icon: Images,
+    href: "/partner/dashboard/gallery",
+  },
+  {
+    label: "Reservations",
+    icon: CalendarDays,
+    href: "/partner/dashboard/reservations",
+  },
+  {
+    label: "Pricing",
+    icon: Wallet,
+    href: "/partner/dashboard/pricing",
+  },
+  {
+    label: "Analytics",
+    icon: BarChart3,
+    href: "/partner/dashboard/analytics",
+  },
+  {
+    label: "Verification",
+    icon: BadgeCheck,
+    href: "/partner/dashboard/verification",
+  },
+  {
+    label: "Settings",
+    icon: Settings,
+    href: "/partner/dashboard/settings",
+  },
+] as const;
 
-  const router = useRouter();
+function isActiveRoute(
+  pathname: string,
+  href: string
+) {
+  if (href === "/partner/dashboard") {
+    return pathname === href;
+  }
 
-  const [
-    collapsed,
-    setCollapsed,
-  ] = useState(false);
+  return (
+    pathname === href ||
+    pathname.startsWith(`${href}/`)
+  );
+}
 
-  const menuItems = [
+function DashboardSidebar() {
+  const pathname = usePathname();
 
-    {
-      label: "Overview",
-      icon: LayoutDashboard,
-      active: true,
-      action: () => {},
-    },
+  const [collapsed, setCollapsed] =
+    useState(false);
 
-    {
-      label: "Property",
-      icon: Building2,
-      action: () =>
-        router.push(
-          "/partner/dashboard/property"
+  const menuItems = useMemo(
+    () =>
+      menuConfig.map((item) => ({
+        ...item,
+        active: isActiveRoute(
+          pathname,
+          item.href
         ),
-    },
-
-    {
-      label: "Rooms",
-      icon: BedDouble,
-      action: () =>
-        router.push(
-          "/partner/dashboard/rooms"
-        ),
-    },
-
-    {
-      label: "Gallery",
-      icon: Images,
-      action: () =>
-        router.push(
-          "/partner/dashboard/gallery"
-        ),
-    },
-
-    {
-      label: "Reservations",
-      icon: CalendarDays,
-      action: () =>
-        router.push(
-          "/partner/dashboard/reservations"
-        ),
-    },
-
-    {
-      label: "Pricing",
-      icon: Wallet,
-      action: () =>
-        router.push(
-          "/partner/dashboard/pricing"
-        ),
-    },
-
-    {
-      label: "Analytics",
-      icon: BarChart3,
-      action: () =>
-        router.push(
-          "/partner/dashboard/analytics"
-        ),
-    },
-
-    {
-      label: "Verification",
-      icon: BadgeCheck,
-      action: () =>
-        router.push(
-          "/partner/dashboard/verification"
-        ),
-    },
-
-    {
-      label: "Settings",
-      icon: Settings,
-      action: () =>
-        router.push(
-          "/partner/dashboard/settings"
-        ),
-    },
-
-  ];
+      })),
+    [pathname]
+  );
 
   return (
 
@@ -190,11 +179,9 @@ export default function DashboardSidebar() {
 
               return (
 
-                <button
-                  key={index}
-                  onClick={
-                    item.action
-                  }
+                <Link
+                  key={item.href}
+                  href={item.href}
                   className={`w-full flex items-center ${
                     collapsed
                       ? "justify-center"
@@ -216,7 +203,7 @@ export default function DashboardSidebar() {
 
                   }
 
-                </button>
+                </Link>
 
               );
 
@@ -230,5 +217,6 @@ export default function DashboardSidebar() {
     </aside>
 
   );
-
 }
+
+export default memo(DashboardSidebar);
