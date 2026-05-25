@@ -249,14 +249,10 @@ export default function Navbar() {
 
       {/* MOBILE MENU */}
 
-      {
-        open && (
-         <MobileMenu
-  mobileMenu={open}
-  setMobileMenu={setOpen}
-/>
-        )
-      }
+      <MobileMenu
+        mobileMenu={open}
+        setMobileMenu={setOpen}
+      />
 
     </>
 

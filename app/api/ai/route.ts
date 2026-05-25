@@ -1,84 +1,42 @@
-import type { AiMessage, AiContext } from "@/types/ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export async function POST(req: Request) {
   try {
-    console.log("AI API: Request received");
-    const body = await req.json();
-    const { messages, context }: { messages: AiMessage[]; context: AiContext } = body;
+    console.log("=== AI API TEST START ===");
 
-    console.log("AI API: Context received", context);
-    console.log("AI API: Messages received", messages);
-
-    const openaiApiKey = process.env.OPENAI_API_KEY;
-    console.log("AI API: OpenAI API Key present?", !!openaiApiKey);
-    if (!openaiApiKey) {
-      console.error("AI API: OpenAI API key is missing!");
-      const fallbackMessage = "Welcome to Niels Privé Concierge! Please set your OPENAI_API_KEY in .env.local to use the full AI concierge features. For now, I'm happy to answer basic questions about our luxury hospitality platform!";
+    const geminiApiKey = process.env.GEMINI_API_KEY;
+    console.log("1. API Key present:", !!geminiApiKey);
+    if (!geminiApiKey) {
       return Response.json({
         success: true,
-        message: fallbackMessage,
+        message: "Please set GEMINI_API_KEY in .env.local",
       });
     }
 
-    const systemPrompt = `You are Niels Privé Concierge, a luxury hospitality AI assistant for Niels Privé, a premium hospitality SaaS platform.
+    console.log("2. Initializing GoogleGenerativeAI...");
+    const genAI = new GoogleGenerativeAI(geminiApiKey);
 
-You are talking to a ${context.userRole === "partner" ? "partner (property owner/manager)" : "guest"}.
+    console.log("3. Getting model: gemini-1.5-flash...");
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-Current context:
-- Current page: ${context.pathname}
-${context.propertyName ? `- Current property: ${context.propertyName}` : ""}
-${context.roomName ? `- Current room: ${context.roomName}` : ""}
-${context.dashboardSection ? `- Dashboard section: ${context.dashboardSection}` : ""}
+    console.log("4. Calling generateContent with simple prompt...");
+    const result = await model.generateContent("Hello! Introduce yourself as Niels Privé Concierge in 2 sentences.");
+    console.log("5. Got result from Gemini!");
 
-Your role:
-- Be elegant, professional, and luxury-focused
-- Help with booking assistance, reservation support, property/room questions, amenities, check-in/out, cancellations, payments
-- For partners: help with dashboard, inventory, reservations, analytics, operations
-- Keep responses concise but helpful
-- Never reveal you are an AI unless asked directly`;
+    const response = await result.response;
+    const text = response.text();
+    console.log("6. Extracted text:", text);
 
-    console.log("AI API: Calling OpenAI API...");
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${openaiApiKey}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...messages.map((m) => ({ role: m.role, content: m.content })),
-        ],
-        temperature: 0.7,
-        max_tokens: 500,
-      }),
-    });
-
-    console.log("AI API: OpenAI response status:", response.status);
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("AI API: OpenAI API error text:", errorText);
-      return Response.json(
-        { success: false, error: "Failed to get AI response" },
-        { status: 500 }
-      );
-    }
-
-    const data = await response.json();
-    console.log("AI API: OpenAI response data:", data);
-    const assistantMessage = data.choices[0].message.content;
-
-    console.log("AI API: Assistant message generated:", assistantMessage);
-
+    console.log("=== AI API TEST SUCCESS ===");
     return Response.json({
       success: true,
-      message: assistantMessage,
+      message: text,
     });
   } catch (error) {
-    console.error("AI API: Unhandled error:", error);
+    console.error("=== AI API TEST FAILED ===");
+    console.error("Full error object:", error);
     return Response.json(
-      { success: false, error: "Internal server error" },
+      { success: false, error: "Failed" },
       { status: 500 }
     );
   }
