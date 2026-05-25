@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -54,12 +55,13 @@ export default function HotelCard({
 
       <div className="relative overflow-hidden h-[280px]">
 
-        <img
+        <Image
           src={image}
           alt={name}
+          fill
+          priority={false}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="
-            h-full
-            w-full
             object-cover
             transition-transform
             duration-[4000ms]

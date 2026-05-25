@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Search, MapPin, Calendar, Users } from "lucide-react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/app/firebase/config";
@@ -14,6 +14,14 @@ const destinations = [
   "Switzerland",
   "France"
 ];
+
+function debounce<T extends (...args: any[]) => any>(func: T, delay: number) {
+  let timeoutId: NodeJS.Timeout;
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+}
 
 export default function Hero() {
   const [currentDest, setCurrentDest] = useState(0);
@@ -58,7 +66,7 @@ export default function Hero() {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
+  const updateSuggestions = () => {
     if (!searchQuery.trim() || searchQuery.length < 2) {
       setSuggestions([]);
       setShowSuggestions(false);
@@ -102,6 +110,15 @@ export default function Hero() {
 
     setSuggestions(results.slice(0, 8));
     setShowSuggestions(true);
+  };
+
+  const debouncedUpdateSuggestions = useRef(debounce(updateSuggestions, 300)).current;
+
+  useEffect(() => {
+    debouncedUpdateSuggestions();
+    return () => {
+      (debouncedUpdateSuggestions as any).cancel?.();
+    };
   }, [searchQuery, hotels, rooms]);
 
   const handleSuggestionClick = (suggestion: any) => {
