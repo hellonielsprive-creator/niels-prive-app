@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import {
   Star,
@@ -25,6 +26,11 @@ export default function HotelCard({
   rooms,
   status = "Available",
 }: HotelCardProps) {
+  const router = useRouter();
+
+  const handleReserveClick = () => {
+    router.push(`/checkout?hotelId=${encodeURIComponent(id || "")}&hotelName=${encodeURIComponent(name)}`);
+  };
 
   return (
 
@@ -206,6 +212,7 @@ export default function HotelCard({
           </Link>
 
           <button
+            onClick={handleReserveClick}
             className="
               flex-1
               border

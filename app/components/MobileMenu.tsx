@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -13,7 +14,19 @@ import {
   Sparkles,
   UserPlus,
   X,
+  Users,
+  MessageCircle,
+  Calendar,
 } from "lucide-react";
+
+const destinations = [
+  "Goa",
+  "Kerala",
+  "Maldives",
+  "Dubai",
+  "Switzerland",
+  "France"
+];
 
 interface MobileMenuProps {
   mobileMenu: boolean;
@@ -25,17 +38,28 @@ export default function MobileMenu({
   setMobileMenu,
 }: MobileMenuProps) {
   const pathname = usePathname();
+  const [currentDest, setCurrentDest] = useState(0);
+
+  useEffect(() => {
+    if (mobileMenu) {
+      const interval = setInterval(() => {
+        setCurrentDest((prev) => (prev + 1) % destinations.length);
+      }, 3500);
+      return () => clearInterval(interval);
+    }
+  }, [mobileMenu]);
 
   const navItems = [
     { label: "Home", href: "/", icon: Home },
     { label: "Hotels", href: "/hotel", icon: Hotel },
-    { label: "Flights", href: "/flights", icon: Plane },
-    { label: "Trips", href: "/account", icon: Briefcase },
-    { label: "Saved", href: "/saved", icon: Heart },
     { label: "Deals", href: "/deals", icon: TicketPercent },
+    { label: "Flights", href: "/flights", icon: Plane },
+    { label: "My Trips", href: "/my-trips", icon: Calendar },
+    { label: "Saved Stays", href: "/saved", icon: Heart },
     { label: "Account", href: "/account", icon: User },
+    { label: "Support", href: "/support", icon: MessageCircle },
     { label: "AI Concierge", href: "#", icon: Sparkles, action: () => {} },
-    { label: "Partner With Us", href: "/partner/signup", icon: UserPlus },
+    { label: "Become a Partner", href: "/partner/signup", icon: UserPlus },
   ];
 
   return (
@@ -50,11 +74,38 @@ export default function MobileMenu({
 
       {/* Drawer */}
       <div
-        className={`fixed top-0 left-0 z-[100] h-full w-[85%] max-w-[360px] bg-gradient-to-b from-[#0a0a0a] to-[#050505] border-r border-white/10 shadow-[20px_0_80px_rgba(0,0,0,0.6)] transform transition-transform duration-500 cubic-bezier(0.22, 1, 0.36, 1) ${
+        className={`fixed top-0 left-0 z-[100] h-full w-[85%] max-w-[360px] bg-gradient-to-b from-[#0a0a0a] via-[#050505] to-[#1a1a1a] border-r border-white/10 shadow-[20px_0_80px_rgba(0,0,0,0.6)] transform transition-transform duration-500 cubic-bezier(0.22, 1, 0.36, 1) overflow-hidden ${
           mobileMenu ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex flex-col h-full p-6">
+        {/* Animated Layered Gradients */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-[#E7C58A]/10 blur-[120px] animate-[pulse_10s_ease-in-out_infinite]"></div>
+          <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-[#C8A96B]/8 blur-[100px] animate-[pulse_14s_ease-in-out_infinite_reverse]"></div>
+        </div>
+
+        {/* Floating Luxury Destinations */}
+        <div className="absolute inset-0 z-10 pointer-events-none overflow-hidden">
+          {destinations.map((dest, idx) => (
+            <div
+              key={dest}
+              className={`absolute text-white/10 text-4xl font-bold tracking-tighter transition-all duration-1000 ease-in-out ${
+                idx === currentDest
+                  ? "opacity-40 scale-100 translate-y-0"
+                  : "opacity-0 scale-90 translate-y-4"
+              }`}
+              style={{
+                left: `${10 + idx * 15}%`,
+                top: `${20 + (idx % 3) * 20}%`,
+                transitionDelay: `${idx * 100}ms`
+              }}
+            >
+              {dest}
+            </div>
+          ))}
+        </div>
+
+        <div className="relative z-20 flex flex-col h-full p-6">
           {/* Header */}
           <div className="flex items-center justify-between mb-10">
             <div>
@@ -65,7 +116,7 @@ export default function MobileMenu({
             </div>
             <button
               onClick={() => setMobileMenu(false)}
-              className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center transition-all duration-300 hover:bg-white/20 hover:scale-105"
+              className="w-11 h-11 rounded-full bg-white/10 backdrop-blur-xl flex items-center justify-center transition-all duration-300 hover:bg-white/20 hover:scale-105"
             >
               <X size={22} />
             </button>

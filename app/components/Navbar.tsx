@@ -16,6 +16,11 @@ import {
   Globe,
   BriefcaseBusiness,
   Menu,
+  Users,
+  MessageCircle,
+  Heart,
+  TicketPercent,
+  Calendar,
 } from "lucide-react";
 
 import MobileMenu from "./MobileMenu";
@@ -99,7 +104,7 @@ export default function Navbar() {
 
               {/* DESKTOP NAV */}
 
-              <div className="hidden lg:flex items-center gap-8 text-[15px] ml-32">
+              <div className="hidden lg:flex items-center gap-10 text-[15px] ml-28">
 
                 <a
                   href="/"
@@ -113,23 +118,6 @@ export default function Navbar() {
                     <Home size={18} />
                     Home
                   </div>
-
-                  <span className="absolute left-0 -bottom-1 h-[1px] w-0 bg-[#E7C58A] transition-all duration-300 group-hover:w-full"></span>
-                </a>
-
-                <a
-                  href="/#destinations"
-                  className={`group relative transition-all duration-300 ${
-                    scrolled
-                      ? "text-black/80 hover:text-[#E7C58A]"
-                      : "text-white/80 hover:text-[#E7C58A]"
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <Globe size={18} />
-                    Destinations
-                  </div>
-
                   <span className="absolute left-0 -bottom-1 h-[1px] w-0 bg-[#E7C58A] transition-all duration-300 group-hover:w-full"></span>
                 </a>
 
@@ -145,7 +133,21 @@ export default function Navbar() {
                     <Hotel size={18} />
                     Hotels
                   </div>
+                  <span className="absolute left-0 -bottom-1 h-[1px] w-0 bg-[#E7C58A] transition-all duration-300 group-hover:w-full"></span>
+                </a>
 
+                <a
+                  href="/deals"
+                  className={`group relative transition-all duration-300 ${
+                    scrolled
+                      ? "text-black/80 hover:text-[#E7C58A]"
+                      : "text-white/80 hover:text-[#E7C58A]"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <TicketPercent size={18} />
+                    Deals
+                  </div>
                   <span className="absolute left-0 -bottom-1 h-[1px] w-0 bg-[#E7C58A] transition-all duration-300 group-hover:w-full"></span>
                 </a>
 
@@ -161,21 +163,11 @@ export default function Navbar() {
                     <Plane size={18} />
                     Flights
                   </div>
-
                   <span className="absolute left-0 -bottom-1 h-[1px] w-0 bg-[#E7C58A] transition-all duration-300 group-hover:w-full"></span>
                 </a>
 
                 <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-
-                    document
-                      .getElementById("support")
-                      ?.scrollIntoView({
-                        behavior: "smooth",
-                      });
-                  }}
+                  href="/support"
                   className={`group relative transition-all duration-300 ${
                     scrolled
                       ? "text-black/80 hover:text-[#E7C58A]"
@@ -183,10 +175,9 @@ export default function Navbar() {
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <BriefcaseBusiness size={18} />
+                    <MessageCircle size={18} />
                     Support
                   </div>
-
                   <span className="absolute left-0 -bottom-1 h-[1px] w-0 bg-[#E7C58A] transition-all duration-300 group-hover:w-full"></span>
                 </a>
 

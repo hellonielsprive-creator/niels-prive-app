@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Calendar, Heart } from "lucide-react";
 
 import Navbar from "@/app/components/Navbar";
 import Hero from "@/app/components/Hero";
@@ -292,6 +293,48 @@ export default function Home() {
 
       </div>
 
+      {/* PREMIUM QUICK ACCESS SECTION */}
+
+      <section className="relative z-15 md:-mt-16 mt-0 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Link
+              href="/my-trips"
+              className="group bg-white/80 backdrop-blur-xl border border-white/20 rounded-[28px] p-8 shadow-[0_15px_50px_rgba(0,0,0,0.08)] hover:shadow-[0_20px_70px_rgba(0,0,0,0.12)] transition-all duration-500 hover:-translate-y-1"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 rounded-full bg-[#E7C58A]/20 flex items-center justify-center">
+                  <Calendar className="text-[#C8A96B]" size={24} />
+                </div>
+              </div>
+              <h3 className="text-2xl font-semibold text-[#1a1a1a] mb-2">
+                My Trips
+              </h3>
+              <p className="text-[#5c5c5c] leading-relaxed">
+                Your personal luxury travel hub — past, present, and future stays.
+              </p>
+            </Link>
+
+            <Link
+              href="/saved"
+              className="group bg-white/80 backdrop-blur-xl border border-white/20 rounded-[28px] p-8 shadow-[0_15px_50px_rgba(0,0,0,0.08)] hover:shadow-[0_20px_70px_rgba(0,0,0,0.12)] transition-all duration-500 hover:-translate-y-1"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 rounded-full bg-[#E7C58A]/20 flex items-center justify-center">
+                  <Heart className="text-[#C8A96B]" size={24} />
+                </div>
+              </div>
+              <h3 className="text-2xl font-semibold text-[#1a1a1a] mb-2">
+                Saved Stays
+              </h3>
+              <p className="text-[#5c5c5c] leading-relaxed">
+                Your dreamboard of curated luxury escapes, saved for future journeys.
+              </p>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* MAIN SECTION */}
 
       <section
@@ -315,45 +358,25 @@ export default function Home() {
 
           <div className="mb-32">
 
-            <div className="flex items-end justify-between gap-6 flex-wrap mb-10">
+            <div className="mb-10">
 
-              <div>
+              <p className="uppercase tracking-[5px] text-[#C8A96B] text-sm mb-4">
 
-                <p className="uppercase tracking-[5px] text-[#C8A96B] text-sm mb-4">
+                Live Hotels
 
-                  Live Hotels
+              </p>
 
-                </p>
+              <h2 className="text-4xl md:text-6xl font-semibold text-[#1a1a1a] leading-tight mb-6">
 
-                <h2 className="text-4xl md:text-6xl font-semibold text-[#1a1a1a] leading-tight mb-6">
+                Curated Luxury Hotels Around The World
 
-                  Curated Luxury Hotels Around The World
+              </h2>
 
-                </h2>
+              <p className="text-[#5c5c5c] text-lg max-w-3xl leading-relaxed">
 
-                <p className="text-[#5c5c5c] text-lg max-w-3xl leading-relaxed">
+                Discover premium hospitality destinations connected directly to the Niels Privé luxury operations platform.
 
-                  Discover premium hospitality destinations connected directly to the Niels Privé luxury operations platform.
-
-                </p>
-
-              </div>
-
-              <div className="bg-white border border-black/5 rounded-[24px] px-6 py-5 shadow-[0_10px_30px_rgba(0,0,0,0.05)]">
-
-                <p className="text-[#8a8a8a] text-sm mb-2">
-
-                  Active Luxury Hotels
-
-                </p>
-
-                <h3 className="text-4xl font-semibold text-black">
-
-                  {featuredHotels.length}
-
-                </h3>
-
-              </div>
+              </p>
 
             </div>
 
@@ -399,9 +422,9 @@ export default function Home() {
 
             )}
 
-            {/* HOTEL CARDS */}
+            {/* HOTEL CARDS — CINEMATIC HORIZONTAL SLIDER */}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+            <div className="flex gap-8 overflow-x-auto pb-6 no-scrollbar snap-x snap-mandatory">
 
               {featuredHotels.map(
                 (
@@ -409,43 +432,47 @@ export default function Home() {
                   index
                 ) => (
 
-                  <HotelCard
+                  <div
                     key={index}
-                    id={hotel.id}
+                    className="min-w-[340px] md:min-w-[420px] xl:min-w-[460px] snap-start"
+                  >
+                    <HotelCard
+                      id={hotel.id}
 
-                    name={
-                      hotel.name ||
-                      "Luxury Stay"
-                    }
+                      name={
+                        hotel.name ||
+                        "Luxury Stay"
+                      }
 
-                    location={
-                      hotel.city ||
-                      "Niels Privé Collection"
-                    }
+                      location={
+                        hotel.city ||
+                        "Niels Privé Collection"
+                      }
 
-                    price={`₹${hotel.startingPrice || 0}`}
+                      price={`₹${hotel.startingPrice || 0}`}
 
-                    rating={
-                      hotel.rating ||
-                      "4.9"
-                    }
+                      rating={
+                        hotel.rating ||
+                        "4.9"
+                      }
 
-                    rooms={
-                      hotel.totalRooms > 0
-                        ? `${hotel.totalRooms} Room Types`
-                        : "Luxury Hospitality"
-                    }
+                      rooms={
+                        hotel.totalRooms > 0
+                          ? `${hotel.totalRooms} Room Types`
+                          : "Luxury Hospitality"
+                      }
 
-                    status={
-                      hotel.status ||
-                      "Available"
-                    }
+                      status={
+                        hotel.status ||
+                        "Available"
+                      }
 
-                    image={
-                      hotel.image ||
-                      "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1600&auto=format&fit=crop"
-                    }
-                  />
+                      image={
+                        hotel.image ||
+                        "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1600&auto=format&fit=crop"
+                      }
+                    />
+                  </div>
 
                 )
               )}
