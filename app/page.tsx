@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 import Navbar from "@/app/components/Navbar";
 import Hero from "@/app/components/Hero";
@@ -482,8 +483,9 @@ export default function Home() {
 
               {indiaDestinations.map((place, index) => (
 
-                <div
+                <Link
                   key={index}
+                  href={`/hotel?destination=${place.title.toLowerCase()}`}
                   className="
                     min-w-[280px]
                     h-[420px]
@@ -545,7 +547,7 @@ export default function Home() {
 
                   </div>
 
-                </div>
+                </Link>
 
               ))}
 
@@ -579,8 +581,9 @@ export default function Home() {
 
               {worldwideDestinations.map((place, index) => (
 
-                <div
+                <Link
                   key={index}
+                  href={`/hotel?destination=${place.title.toLowerCase()}`}
                   className="
                     min-w-[280px]
                     h-[420px]
@@ -642,7 +645,7 @@ export default function Home() {
 
                   </div>
 
-                </div>
+                </Link>
 
               ))}
 
