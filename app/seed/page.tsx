@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { collection, writeBatch, doc } from "firebase/firestore";
-import { db } from "@/app/firebase/config";
+import { db } from "@/lib/firebase";
 import { hotels, getRoomsForHotel } from "@/scripts/seed-data";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";

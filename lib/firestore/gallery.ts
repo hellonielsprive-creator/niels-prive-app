@@ -6,7 +6,7 @@ import {
   where,
 } from "firebase/firestore";
 
-import { db } from "@/app/firebase/config";
+import { db } from "@/lib/firebase";
 
 import { mapQueryDocs } from "./mappers";
 

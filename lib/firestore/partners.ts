@@ -12,7 +12,7 @@ import {
   type QueryDocumentSnapshot,
 } from "firebase/firestore";
 
-import { auth, db } from "@/app/firebase/config";
+import { auth, db } from "@/lib/firebase";
 
 const LEGACY_USER_ID_FIELDS = [
   "uid",

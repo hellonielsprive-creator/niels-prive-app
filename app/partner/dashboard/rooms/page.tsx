@@ -27,6 +27,7 @@ import { useDashboardRoomBookings } from "@/lib/dashboard/useDashboardRoomBookin
 import {
   archiveRoom,
   updateRoomManualStatus,
+  restoreRoom,
 } from "@/lib/firestore/rooms";
 
 import {
@@ -75,12 +76,18 @@ export default function RoomsPage() {
     setGalleryPreview,
   ] = useState<string[]>([]);
 
+  const [activeTab, setActiveTab] = useState<"active" | "archived">("active");
+
   /* SEARCH */
 
   const filteredRooms =
     useMemo(() => {
 
-      return rooms.filter(
+      const roomsByTab = rooms.filter(
+        (room) => activeTab === "archived" ? room.archived === true : room.archived !== true
+      );
+
+      return roomsByTab.filter(
         (room) =>
 
           room.roomName
@@ -91,7 +98,7 @@ export default function RoomsPage() {
 
       );
 
-    }, [rooms, search]);
+    }, [rooms, search, activeTab]);
 
   /* UPDATE STATUS */
 
@@ -152,9 +159,10 @@ export default function RoomsPage() {
         );
 
         patchRooms((prevRooms) =>
-          prevRooms.filter(
-            (room) =>
-              room.id !== selectedRoom.id
+          prevRooms.map((room) =>
+            room.id === selectedRoom.id
+              ? { ...room, archived: true }
+              : room
           )
         );
 
@@ -170,6 +178,44 @@ export default function RoomsPage() {
 
         setSelectedRoom(
           null
+        );
+
+      } catch (error) {
+
+        toast.error(
+          "Something went wrong"
+        );
+
+        console.log(error);
+
+      }
+
+    };
+
+  /* RESTORE */
+
+  const restoreRoomHandler =
+    async (room: DashboardRoom) => {
+
+      try {
+
+        await restoreRoom(
+          room.id,
+          partnerId
+        );
+
+        patchRooms((prevRooms) =>
+          prevRooms.map((r) =>
+            r.id === room.id
+              ? { ...r, archived: false }
+              : r
+          )
+        );
+
+        await syncAfterMutation();
+
+        toast.success(
+          `${room.roomName} restored`
         );
 
       } catch (error) {
@@ -230,11 +276,71 @@ export default function RoomsPage() {
 
         {/* HEADER */}
 
-        <RoomsHeader
-          router={router}
-          search={search}
-          setSearch={setSearch}
-        />
+        <div className="mb-14">
+          <div className="flex items-center justify-between mb-14 flex-wrap gap-6">
+            <div>
+              <p className="tracking-[0.35em] text-[#d4a574] text-xs mb-5">
+                ROOM MANAGEMENT
+              </p>
+              <button
+                onClick={() =>
+                  router.push(
+                    "/partner/dashboard"
+                  )
+                }
+                className="mb-7 px-5 py-3 rounded-2xl bg-white/[0.05] border border-white/10 hover:bg-white/[0.08] transition-all"
+              >
+                ← Back To Dashboard
+              </button>
+              <h1 className="text-5xl md:text-7xl font-semibold leading-[0.95] tracking-[-0.05em]">
+                Hospitality
+                <br />
+                Inventory
+              </h1>
+              <p className="text-white/45 mt-6 leading-8 max-w-3xl text-lg">
+                Manage room availability, hospitality operations, occupancy performance, and guest inventory experiences.
+              </p>
+            </div>
+            <div className="flex items-center gap-4 flex-wrap">
+              <div className="flex bg-white/[0.04] border border-white/10 rounded-2xl p-1 gap-1">
+                <button
+                  onClick={() => setActiveTab("active")}
+                  className={`px-6 py-3 rounded-xl font-medium transition-all ${activeTab === "active" ? "bg-white/[0.12] text-white" : "text-white/40 hover:text-white/70"}`}
+                >
+                  Active
+                </button>
+                <button
+                  onClick={() => setActiveTab("archived")}
+                  className={`px-6 py-3 rounded-xl font-medium transition-all ${activeTab === "archived" ? "bg-white/[0.12] text-white" : "text-white/40 hover:text-white/70"}`}
+                >
+                  Archived
+                </button>
+              </div>
+              <div className="relative">
+                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-neutral-500">🔍</div>
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search rooms..."
+                  className="bg-white/[0.04] border border-white/10 rounded-2xl pl-14 pr-5 py-4 outline-none w-[280px]"
+                />
+              </div>
+              {activeTab === "active" && (
+                <button
+                  onClick={() =>
+                    router.push(
+                      "/partner/dashboard/rooms/add"
+                    )
+                  }
+                  className="bg-[#d4a574] hover:bg-[#c3925c] transition-all text-black px-6 py-4 rounded-2xl font-medium flex items-center gap-3"
+                >
+                  <div>+</div>
+                  Add New Room
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
 
         {/* EMPTY */}
 
@@ -253,15 +359,14 @@ export default function RoomsPage() {
             </div>
 
             <h2 className="text-4xl font-semibold mb-5">
-
-              No Active Inventory
-
+              {activeTab === "archived" ? "No Archived Rooms" : "No Active Inventory"}
             </h2>
 
             <p className="text-white/45 max-w-2xl mx-auto leading-8 mb-10 text-lg">
-
-              Start building your hospitality inventory and premium room experiences for future guests.
-
+              {activeTab === "archived"
+                ? "Archived rooms will appear here when you archive inventory from your active listings."
+                : "Start building your hospitality inventory and premium room experiences for future guests."
+              }
             </p>
 
           </div>
@@ -291,6 +396,28 @@ export default function RoomsPage() {
                 room.roomName ?? "",
                 bookings
               );
+
+            if (activeTab === "archived") {
+              return (
+                <div key={room.id} className="bg-white/[0.03] border border-white/10 rounded-[35px] p-8">
+                  <div className="flex items-start justify-between mb-6">
+                    <div>
+                      <h3 className="text-2xl font-semibold text-white mb-2">{room.roomName || "Room"}</h3>
+                      <p className="text-white/40">Archived room</p>
+                    </div>
+                    <div className="px-4 py-2 rounded-full bg-white/[0.05] border border-white/10 text-white/50 text-sm">
+                      Archived
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => restoreRoomHandler(room)}
+                    className="w-full bg-[#d4a574]/20 hover:bg-[#d4a574]/30 text-[#d4a574] border border-[#d4a574]/30 rounded-2xl py-4 font-medium transition-all"
+                  >
+                    Restore Room
+                  </button>
+                </div>
+              );
+            }
 
             return (
 

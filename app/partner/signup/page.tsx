@@ -27,7 +27,7 @@ import {
 import {
   auth,
   db,
-} from "@/app/firebase/config";
+} from "@/lib/firebase";
 
 import { useRouter } from "next/navigation";
 

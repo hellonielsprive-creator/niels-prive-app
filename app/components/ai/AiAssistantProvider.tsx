@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { usePathname } from "next/navigation";
-import { auth } from "@/app/firebase/config";
+import { auth } from "@/lib/firebase";
 import {
   getOrCreateConversation,
   addMessageToConversation,

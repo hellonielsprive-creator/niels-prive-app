@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { type User } from "firebase/auth";
 
 import {
   collection,
@@ -22,7 +23,7 @@ import {
   db,
   auth,
   storage,
-} from "@/app/firebase/config";
+} from "@/lib/firebase";
 
 import { useRouter } from "next/navigation";
 
@@ -95,7 +96,7 @@ export default function AddRoomPage() {
   /* FETCH HOTELS */
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+    const unsubscribe = auth.onAuthStateChanged(async (user: User | null) => {
       if (!user) {
         return;
       }

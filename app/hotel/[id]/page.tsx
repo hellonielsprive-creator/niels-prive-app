@@ -19,7 +19,7 @@ import {
 
 import {
   db,
-} from "@/app/firebase/config";
+} from "@/lib/firebase";
 
 import {
   Star,

@@ -11,6 +11,13 @@ body {
   overflow-x: hidden;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  padding-bottom: 6rem;
+}
+
+@media (min-width: 1024px) {
+  body {
+    padding-bottom: 0;
+  }
 }
 
 /* PREMIUM SECTION STACKING */
@@ -56,4 +63,109 @@ img {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* SUBTLE AMBIENT MOTION */
+
+@keyframes ambient-glow {
+  0%, 100% {
+    opacity: 0.9;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.ambient-glow {
+  animation: ambient-glow 8s ease-in-out infinite;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+/* Mobile Hero Custom Animations */
+@keyframes float1 {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  33% {
+    transform: translate(40px, 30px);
+  }
+  66% {
+    transform: translate(-20px, 50px);
+  }
+}
+
+@keyframes float2 {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-50px, -30px);
+  }
+  75% {
+    transform: translate(30px, -60px);
+  }
+}
+
+@keyframes float3 {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-40px, 40px);
+  }
+}
+
+.animate-float1 {
+  animation: float1 20s ease-in-out infinite;
+}
+
+.animate-float2 {
+  animation: float2 25s ease-in-out infinite;
+}
+
+.animate-float3 {
+  animation: float3 18s ease-in-out infinite;
+}
+
+/* Footer Glow Animations */
+@keyframes footerGlow {
+  0%, 100% {
+    opacity: 0.3;
+    transform: translate(-50%, 0) scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translate(-50%, -10px) scale(1.1);
+  }
+}
+
+@keyframes footerTextGlow {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(10px);
+  }
+  50% {
+    opacity: 0.8;
+    filter: blur(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
 }

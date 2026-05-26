@@ -21,7 +21,7 @@ import {
   collection,
 } from "firebase/firestore";
 
-import { db } from "@/app/firebase/config";
+import { db } from "@/lib/firebase";
 
 import { useDashboardData } from "@/app/components/dashboard/DashboardProvider";
 

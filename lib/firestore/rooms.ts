@@ -8,7 +8,7 @@ import {
   where,
 } from "firebase/firestore";
 
-import { db } from "@/app/firebase/config";
+import { db } from "@/lib/firebase";
 
 import { mapQueryDocs } from "./mappers";
 
@@ -78,5 +78,16 @@ export async function archiveRoom(
 
   await updateDoc(doc(db, "rooms", roomId), {
     archived: true,
+  });
+}
+
+export async function restoreRoom(
+  roomId: string,
+  partnerId?: string | null
+) {
+  await assertPartnerRoom(roomId, partnerId);
+
+  await updateDoc(doc(db, "rooms", roomId), {
+    archived: false,
   });
 }

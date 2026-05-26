@@ -1,4 +1,4 @@
-import { auth } from "@/app/firebase/config";
+import { auth } from "@/lib/firebase";
 import { getBookingsByPartnerId } from "@/lib/firestore/bookings";
 import { getPartnerByUserId } from "@/lib/firestore/partners";
 import { getRoomsByPartnerId } from "@/lib/firestore/rooms";

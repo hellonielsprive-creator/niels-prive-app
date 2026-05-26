@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ArrowUp } from "lucide-react";
 
 export default function Footer() {
   const router = useRouter();
@@ -11,6 +12,9 @@ export default function Footer() {
       {/* AMBIENT GLOW */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-[#E7C58A]/12 blur-[140px] rounded-full pointer-events-none"></div>
 
+      {/* DYNAMIC GLOW ANIMATION */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#E7C58A]/10 blur-[160px] rounded-full pointer-events-none animate-[footerGlow_4s_ease-in-out_infinite]"></div>
+
       {/* NOISE OVERLAY */}
       <div className="absolute inset-0 opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
 
@@ -18,7 +22,7 @@ export default function Footer() {
         {/* MAIN FOOTER GRID */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* BRAND */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 animate-[footerTextGlow_2.5s_ease-out_forwards]">
             <h2 className="text-[32px] font-semibold tracking-[-0.03em] mb-5">
               Niels <span className="text-[#E7C58A]">Privé</span>
             </h2>
@@ -104,9 +108,26 @@ export default function Footer() {
           <p className="text-white/25 text-xs tracking-wide">
             © 2026 Niels Privé. All rights reserved.
           </p>
-          <div className="flex flex-wrap items-center gap-6 text-white/30 text-xs">
-            <p className="hover:text-white transition">Bangalore, India</p>
-            <p className="hover:text-white transition">hello.nielsprive@gmail.com</p>
+          
+          <div className="flex items-center gap-6">
+            <button
+              aria-label="Back to top of page"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="
+                flex items-center gap-2
+                text-white/40 hover:text-[#E7C58A] 
+                transition-all duration-300
+                text-xs uppercase tracking-[0.3em]
+              "
+            >
+              Back to top
+              <ArrowUp className="w-3.5 h-3.5" />
+            </button>
+            
+            <div className="flex flex-wrap items-center gap-6 text-white/30 text-xs">
+              <p className="hover:text-white transition">Bangalore, India</p>
+              <p className="hover:text-white transition">hello.nielsprive@gmail.com</p>
+            </div>
           </div>
         </div>
       </div>

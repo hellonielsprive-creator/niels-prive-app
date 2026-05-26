@@ -2,7 +2,7 @@
 
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { auth } from "@/app/firebase/config";
+import { auth } from "@/lib/firebase";
 import { BOOKING_TYPES } from "@/lib/bookings/schema";
 import { createBooking } from "@/lib/firestore/bookings";
 

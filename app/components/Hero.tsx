@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Search, MapPin, Calendar, Users } from "lucide-react";
 import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/app/firebase/config";
+import { db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 
 const destinations = [

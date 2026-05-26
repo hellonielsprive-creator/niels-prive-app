@@ -22,7 +22,7 @@ import {
 import {
   db,
   auth,
-} from "@/app/firebase/config";
+} from "@/lib/firebase";
 
 import { BOOKING_TYPES } from "@/lib/bookings/schema";
 import { createBooking } from "@/lib/firestore/bookings";

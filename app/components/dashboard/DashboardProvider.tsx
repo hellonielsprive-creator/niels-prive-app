@@ -12,8 +12,9 @@ import {
 } from "react";
 
 import { useRouter } from "next/navigation";
+import { type User } from "firebase/auth";
 
-import { auth } from "@/app/firebase/config";
+import { auth } from "@/lib/firebase";
 import { updateBookingStatus as persistBookingStatus } from "@/lib/firestore/bookings";
 import { fetchPartnerDashboardData } from "@/lib/dashboard/fetchDashboardData";
 import { selectPartnerPmsBookings } from "@/lib/dashboard/selectors";
@@ -184,7 +185,7 @@ export default function DashboardProvider({
 
   useEffect(() => {
     const unsubscribe =
-      auth.onAuthStateChanged((user) => {
+      auth.onAuthStateChanged((user: User | null) => {
         if (!user) {
           partnerIdRef.current = null;
           setPartnerId(null);
